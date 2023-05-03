@@ -6,11 +6,12 @@
 
 ## Установка проекта
 выполните команды в терминале:
+- `make install-deps`
 - `cp .env.dist .env`
 - `cp docker-compose.override.yml.dist docker-compose.override.yml`
 
-заполните файл `.env` актуальными значениями
-заполните файл `docker-compose.override.yml` актуальными значениями
+заполните файлы `.env` и `docker-compose.override.yml` актуальными значениями
+- `make migrate-up`
 
 ## Запуск проекта
 выполните команды в терминале:
