@@ -7,6 +7,9 @@ DSN="host=${POSTGRES_HOST} port=${POSTGRES_PORT} dbname=${POSTGRES_DB} user=${PO
 
 install-deps:
 	go install github.com/pressly/goose/v3/cmd/goose@latest
+	go install honnef.co/go/tools/cmd/staticcheck@latest
+	go install github.com/kisielk/errcheck@latest
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(CURDIR)/bin
 
 env-up:
 	docker compose ${DOCKER_COMPOSE_FLAGS} up -d
@@ -25,3 +28,6 @@ migrate-down:
 
 migrate-status:
 	goose -dir ${MIGRATIONS_DIR} postgres ${DSN} status
+
+lint:
+	bin/golangci-lint run ./...

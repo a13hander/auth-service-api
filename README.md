@@ -1,6 +1,7 @@
 # auth-service-api
 
 ## Зависимости проекта
+- curl
 - docker
 - [docker compose plugin](https://docs.docker.com/compose/install/linux/)
 
@@ -24,3 +25,4 @@
 ## Дополнительно
 Дополнительные команды:
 - `make env-status` статус контейнеров окружения
+- `make lint` запуск линтеров
