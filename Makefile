@@ -1,5 +1,8 @@
 DOCKER_COMPOSE_FLAGS=-f docker-compose.yml -f docker-compose.override.yml
 
+install-deps:
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+
 env-up:
 	docker compose ${DOCKER_COMPOSE_FLAGS} up -d
 
