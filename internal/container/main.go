@@ -3,6 +3,9 @@ package container
 import (
 	"context"
 	"fmt"
+	"log"
+
+	"github.com/a13hander/auth-service-api/internal/app/grpc_v1"
 	"github.com/a13hander/auth-service-api/internal/domain/usecase"
 	"github.com/a13hander/auth-service-api/internal/domain/util"
 	"github.com/a13hander/auth-service-api/internal/service/database"
@@ -10,7 +13,6 @@ import (
 	"github.com/a13hander/auth-service-api/internal/service/validator"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
-	"log"
 )
 
 type Container struct {
@@ -23,6 +25,10 @@ type Container struct {
 
 	UseCase struct {
 		CreateUserUseCase *usecase.CreateUserUseCase
+	}
+
+	Grpc struct {
+		V1 *grpc_v1.Implementation
 	}
 }
 
@@ -55,6 +61,8 @@ func Build() *Container {
 	cont.Repo.UserRepo = database.NewUserRepo(pool)
 
 	cont.UseCase.CreateUserUseCase = usecase.NewCreateUserUseCase(validator.NewUserValidator(), cont.Repo.UserRepo, cont.Logger)
+
+	cont.Grpc.V1 = grpc_v1.NewImplementation(cont.UseCase.CreateUserUseCase)
 
 	return &cont
 }

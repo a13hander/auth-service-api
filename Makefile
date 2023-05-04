@@ -9,6 +9,8 @@ install-deps:
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 	go install github.com/kisielk/errcheck@latest
+	GOBIN=$(CURDIR)/bin go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+	GOBIN=$(CURDIR)/bin go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(CURDIR)/bin
 
 env-up:
@@ -31,3 +33,10 @@ migrate-status:
 
 lint:
 	bin/golangci-lint run ./...
+
+generate:
+	rm -rf pkg
+	mkdir -p pkg/auth_v1
+	protoc --proto_path api/auth_v1 --go_out=pkg/auth_v1 --go_opt=paths=source_relative --go-grpc_out=pkg/auth_v1 --go-grpc_opt=paths=source_relative \
+	--plugin=protoc-gen-go=bin/protoc-gen-go \
+	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc api/auth_v1/service.proto

@@ -8,6 +8,8 @@ import (
 )
 
 type Config struct {
+	GrpcPort string `env:"GRPC_PORT" env-required:"true"`
+
 	Db struct {
 		Host     string `env:"POSTGRES_HOST" env-required:"true"`
 		Port     string `env:"POSTGRES_PORT" env-required:"true"`

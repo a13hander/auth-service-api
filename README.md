@@ -1,6 +1,7 @@
 # auth-service-api
 
 ## Зависимости проекта
+- protoc
 - curl
 - docker
 - [docker compose plugin](https://docs.docker.com/compose/install/linux/)
