@@ -26,7 +26,7 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*
 		Role:            req.GetRole(),
 	}
 
-	id, err := i.createUserUseCase.Create(ctx, &createReq)
+	id, err := i.createUserUseCase.Run(ctx, &createReq)
 	if err != nil {
 		return nil, err
 	}

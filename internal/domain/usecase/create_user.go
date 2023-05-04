@@ -39,7 +39,7 @@ func NewCreateUserUseCase(validator UserValidator, repo UserRepo, l util.Logger)
 	return &CreateUserUseCase{validator: validator, repo: repo, l: l}
 }
 
-func (c *CreateUserUseCase) Create(ctx context.Context, req *CreateUserRequest) (int, error) {
+func (c *CreateUserUseCase) Run(ctx context.Context, req *CreateUserRequest) (int, error) {
 	err := c.validator.ValidateCreating(req)
 	if err != nil {
 		return 0, errs.NewInvalidArgumentError(err.Error())
