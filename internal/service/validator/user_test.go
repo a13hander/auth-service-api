@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func testPassConfirmCheck(t *testing.T) {
+func TestPassConfirmCheck(t *testing.T) {
 	sut := validator.NewUserValidator()
 
 	request := &usecase.CreateUserRequest{
