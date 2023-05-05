@@ -7,8 +7,8 @@ CREATE TABLE users
     username   text      NOT NULL,
     password   text      NOT NULL,
     role       int       NOT NULL,
-    created_at timestamp NOT NULL,
-    updated_at timestamp NOT NULL
+    created_at timestamp NOT NULL DEFAULT now(),
+    updated_at timestamp NOT NULL DEFAULT now()
 );
 -- +goose StatementEnd
 

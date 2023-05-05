@@ -6,7 +6,6 @@ import (
 	"github.com/a13hander/auth-service-api/internal/domain/errs"
 	"github.com/a13hander/auth-service-api/internal/domain/model"
 	"github.com/a13hander/auth-service-api/internal/domain/util"
-	"time"
 )
 
 type UserRepo interface {
@@ -61,12 +60,8 @@ func (c *CreateUserUseCase) Run(ctx context.Context, req *CreateUserRequest) (in
 }
 
 func fillAttrs(u *model.User, req *CreateUserRequest) {
-	now := time.Now()
-
 	u.Email = req.Email
 	u.Username = req.Username
 	u.Password = req.Password
 	u.Role = req.Role
-	u.CreatedAt = now
-	u.UpdatedAt = now
 }
