@@ -23,7 +23,7 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*
 		Username:        req.GetUsername(),
 		Password:        req.GetPassword(),
 		PasswordConfirm: req.GetPasswordConfirm(),
-		Role:            req.GetRole(),
+		Role:            int(req.GetRole()),
 	}
 
 	id, err := i.createUserUseCase.Run(ctx, &createReq)

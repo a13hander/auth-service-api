@@ -22,7 +22,7 @@ type CreateUserRequest struct {
 	Username        string
 	Password        string
 	PasswordConfirm string
-	Role            string
+	Role            int
 }
 
 func (r *CreateUserRequest) String() string {

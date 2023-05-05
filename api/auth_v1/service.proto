@@ -8,12 +8,17 @@ service AuthV1 {
   rpc Create(CreateRequest) returns (CreateResponse);
 }
 
+enum Role {
+  USER = 0;
+  ADMIN = 1;
+}
+
 message CreateRequest {
   string email = 1;
   string username = 2;
   string password = 3;
   string password_confirm = 4;
-  string role = 5;
+  Role role = 5;
 }
 
 message CreateResponse {
