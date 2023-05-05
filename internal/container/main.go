@@ -62,7 +62,7 @@ func Build() *Container {
 
 	cont.UseCase.CreateUserUseCase = usecase.NewCreateUserUseCase(validator.NewUserValidator(), cont.Repo.UserRepo, cont.Logger)
 
-	cont.Grpc.V1 = grpc_v1.NewImplementation(cont.UseCase.CreateUserUseCase)
+	cont.Grpc.V1 = grpc_v1.NewImplementation(cont.UseCase.CreateUserUseCase, cont.Logger)
 
 	return &cont
 }
