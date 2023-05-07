@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package auth_v1;
+
+option go_package = "github.com/a13hander/auth-service-app/pkg/auth_v1;auth_v1";
+
+service AuthV1 {
+  rpc Create(CreateRequest) returns (CreateResponse);
+}
+
+enum Role {
+  USER = 0;
+  ADMIN = 1;
+}
+
+message CreateRequest {
+  string email = 1;
+  string username = 2;
+  string password = 3;
+  string password_confirm = 4;
+  Role role = 5;
+}
+
+message CreateResponse {
+  uint32 id = 1;
+}
