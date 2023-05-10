@@ -1,9 +1,10 @@
 package validator_test
 
 import (
-	"github.com/a13hander/auth-service-api/internal/domain/usecase"
-	"github.com/a13hander/auth-service-api/internal/service/validator"
 	"testing"
+
+	"github.com/a13hander/auth-service-api/internal/domain/usecase"
+	"github.com/a13hander/auth-service-api/internal/domain/validator"
 )
 
 func TestPassConfirmCheck(t *testing.T) {

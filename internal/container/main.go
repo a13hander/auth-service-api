@@ -8,9 +8,9 @@ import (
 	"github.com/a13hander/auth-service-api/internal/app/grpc_v1"
 	"github.com/a13hander/auth-service-api/internal/domain/usecase"
 	"github.com/a13hander/auth-service-api/internal/domain/util"
+	"github.com/a13hander/auth-service-api/internal/domain/validator"
 	"github.com/a13hander/auth-service-api/internal/service/database"
 	"github.com/a13hander/auth-service-api/internal/service/logger"
-	"github.com/a13hander/auth-service-api/internal/service/validator"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/joho/godotenv"
 )
