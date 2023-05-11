@@ -3,6 +3,7 @@ package grpc_v1
 import (
 	"context"
 	"fmt"
+
 	"github.com/a13hander/auth-service-api/internal/domain/errs"
 	"github.com/a13hander/auth-service-api/internal/domain/util"
 

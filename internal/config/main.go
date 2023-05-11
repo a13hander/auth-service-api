@@ -1,10 +1,11 @@
-package container
+package config
 
 import (
 	"log"
 	"sync"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -24,9 +25,14 @@ var onceConfig sync.Once
 
 func GetConfig() *Config {
 	onceConfig.Do(func() {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		config = &Config{}
 
-		err := cleanenv.ReadEnv(config)
+		err = cleanenv.ReadEnv(config)
 		if err != nil {
 			log.Fatalln(err)
 		}
