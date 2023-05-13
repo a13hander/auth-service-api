@@ -64,6 +64,16 @@ func (c *serviceProvider) GetPgxPool(ctx context.Context) *pgxpool.Pool {
 			log.Fatalln(err)
 		}
 
+		err = pool.Ping(ctx)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		closer.add(func() error {
+			pool.Close()
+			return nil
+		})
+
 		c.pool = pool
 	}
 

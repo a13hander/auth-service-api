@@ -30,7 +30,17 @@ func NewApp(ctx context.Context) (*App, error) {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	return a.runGrpcV1Server(ctx)
+	defer func() {
+		closer.closeAll()
+		closer.wait()
+	}()
+
+	err := a.runGrpcV1Server(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a *App) initDeps(ctx context.Context) error {
