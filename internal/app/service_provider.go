@@ -2,13 +2,9 @@ package app
 
 import (
 	"context"
-	"fmt"
-	"log"
 
 	grpcV1 "github.com/a13hander/auth-service-api/internal/app/grpc_v1"
 	"github.com/a13hander/auth-service-api/internal/config"
-
-	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/a13hander/auth-service-api/internal/domain/usecase"
 	"github.com/a13hander/auth-service-api/internal/domain/util"
@@ -19,7 +15,7 @@ import (
 
 type serviceProvider struct {
 	logger           util.Logger
-	pool             *pgxpool.Pool
+	dbClient         database.Client
 	grpcV1ServerImpl *grpcV1.Implementation
 
 	repo struct {
@@ -47,42 +43,27 @@ func (c *serviceProvider) GetLogger(_ context.Context) util.Logger {
 	return c.logger
 }
 
-func (c *serviceProvider) GetPgxPool(ctx context.Context) *pgxpool.Pool {
-	if c.pool == nil {
+func (c serviceProvider) GetDbClient(ctx context.Context) database.Client {
+	if c.dbClient == nil {
 		dbConf := config.GetConfig().Db
 
-		conf, _ := pgxpool.ParseConfig(fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
-			dbConf.User,
-			dbConf.Password,
-			dbConf.Host,
-			dbConf.Port,
-			dbConf.Database),
-		)
-
-		pool, err := pgxpool.ConnectConfig(ctx, conf)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		err = pool.Ping(ctx)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		closer.add(func() error {
-			pool.Close()
-			return nil
+		c.dbClient = database.NewClient(ctx, database.DbConfig{
+			Host:     dbConf.Host,
+			Port:     dbConf.Port,
+			User:     dbConf.User,
+			Password: dbConf.Password,
+			Database: dbConf.Database,
 		})
 
-		c.pool = pool
+		closer.add(c.dbClient.Close)
 	}
 
-	return c.pool
+	return c.dbClient
 }
 
 func (c *serviceProvider) GetUserRepo(ctx context.Context) usecase.UserRepo {
 	if c.repo.userRepo == nil {
-		c.repo.userRepo = database.NewUserRepo(c.GetPgxPool(ctx))
+		c.repo.userRepo = database.NewUserRepo(c.GetDbClient(ctx))
 	}
 
 	return c.repo.userRepo

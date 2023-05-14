@@ -2,20 +2,21 @@ package database
 
 import (
 	"context"
+
 	sq "github.com/Masterminds/squirrel"
+
 	"github.com/a13hander/auth-service-api/internal/domain/model"
-	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 const tableName = "users"
 
 type UserRepo struct {
-	pool *pgxpool.Pool
+	dbClient Client
 }
 
-func NewUserRepo(pool *pgxpool.Pool) *UserRepo {
+func NewUserRepo(dbClient Client) *UserRepo {
 	return &UserRepo{
-		pool: pool,
+		dbClient: dbClient,
 	}
 }
 
@@ -31,7 +32,11 @@ func (r *UserRepo) Create(ctx context.Context, u *model.User) error {
 		return err
 	}
 
-	row := r.pool.QueryRow(ctx, sql, v...)
+	q := Query{
+		Name:     "UserRepo.Create",
+		QueryRaw: sql,
+	}
+	row := r.dbClient.QueryRowContext(ctx, q, v...)
 
 	id := 0
 	if err := row.Scan(&id); err != nil {
