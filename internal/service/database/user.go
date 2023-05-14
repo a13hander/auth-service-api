@@ -63,20 +63,11 @@ func (r *UserRepo) GetAll(ctx context.Context) ([]*model.User, error) {
 		QueryRaw: sql,
 	}
 
-	row, err := r.dbClient.QueryContext(ctx, q, args...)
+	const predefinedSize = 100
+	users := make([]*model.User, 0, predefinedSize)
+	err = r.dbClient.Select(ctx, &users, q, args...)
 	if err != nil {
 		return nil, err
-	}
-
-	users := make([]*model.User, 0, 100)
-	for row.Next() {
-		u := &model.User{}
-		err := row.Scan(&u.Id, &u.Email, &u.Username, &u.Role, &u.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-
-		users = append(users, u)
 	}
 
 	return users, nil

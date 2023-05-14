@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 
+	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -21,8 +22,14 @@ type QueryExecer interface {
 	QueryRowContext(ctx context.Context, q Query, args ...interface{}) pgx.Row
 }
 
+type NamedExecer interface {
+	Get(ctx context.Context, dest interface{}, q Query, args ...interface{}) error
+	Select(ctx context.Context, dest interface{}, q Query, args ...interface{}) error
+}
+
 type Client interface {
 	QueryExecer
+	NamedExecer
 	Close() error
 }
 
@@ -59,6 +66,24 @@ func (c *client) QueryContext(ctx context.Context, q Query, args ...interface{})
 
 func (c *client) QueryRowContext(ctx context.Context, q Query, args ...interface{}) pgx.Row {
 	return c.pg.QueryRow(ctx, q.QueryRaw, args...)
+}
+
+func (c *client) Get(ctx context.Context, dest interface{}, q Query, args ...interface{}) error {
+	rows, err := c.QueryContext(ctx, q, args...)
+	if err != nil {
+		return err
+	}
+
+	return pgxscan.ScanOne(dest, rows)
+}
+
+func (c *client) Select(ctx context.Context, dest interface{}, q Query, args ...interface{}) error {
+	rows, err := c.QueryContext(ctx, q, args...)
+	if err != nil {
+		return err
+	}
+
+	return pgxscan.ScanAll(dest, rows)
 }
 
 func (c *client) Close() error {
