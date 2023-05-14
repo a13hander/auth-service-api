@@ -27,7 +27,7 @@ type serviceProvider struct {
 	}
 
 	useCase struct {
-		createUserUseCase *usecase.CreateUserUseCase
+		createUserUseCase usecase.CreateUserUseCase
 	}
 }
 
@@ -77,7 +77,7 @@ func (c *serviceProvider) GetUserValidator(_ context.Context) usecase.UserValida
 	return c.validator.userValidator
 }
 
-func (c *serviceProvider) GetCreateUserUseCase(ctx context.Context) *usecase.CreateUserUseCase {
+func (c *serviceProvider) GetCreateUserUseCase(ctx context.Context) usecase.CreateUserUseCase {
 	if c.useCase.createUserUseCase == nil {
 		c.useCase.createUserUseCase = usecase.NewCreateUserUseCase(c.GetUserValidator(ctx), c.GetUserRepo(ctx), c.GetLogger(ctx))
 	}
