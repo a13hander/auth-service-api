@@ -96,7 +96,11 @@ func (c *serviceProvider) GetListUserUseCase(ctx context.Context) usecase.ListUs
 
 func (c *serviceProvider) GetGrpcV1ServerImpl(ctx context.Context) *grpcV1.Implementation {
 	if c.grpcV1ServerImpl == nil {
-		c.grpcV1ServerImpl = grpcV1.NewImplementation(c.GetCreateUserUseCase(ctx), c.GetLogger(ctx))
+		c.grpcV1ServerImpl = grpcV1.NewImplementation(
+			c.GetCreateUserUseCase(ctx),
+			c.GetListUserUseCase(ctx),
+			c.GetLogger(ctx),
+		)
 	}
 
 	return c.grpcV1ServerImpl

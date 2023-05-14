@@ -2,10 +2,14 @@ syntax = "proto3";
 
 package auth_v1;
 
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/a13hander/auth-service-app/pkg/auth_v1;auth_v1";
 
 service AuthV1 {
   rpc Create(CreateRequest) returns (CreateResponse);
+  rpc List(google.protobuf.Empty) returns (ListResponse);
 }
 
 enum Role {
@@ -13,14 +17,28 @@ enum Role {
   ADMIN = 1;
 }
 
-message CreateRequest {
+message UserInfo {
   string email = 1;
   string username = 2;
-  string password = 3;
-  string password_confirm = 4;
-  Role role = 5;
+  Role role = 3;
+}
+
+message User {
+  uint32 id = 1;
+  UserInfo info = 2;
+  google.protobuf.Timestamp created_at = 3;
+}
+
+message CreateRequest {
+  UserInfo user = 1;
+  string password = 2;
+  string password_confirm = 3;
 }
 
 message CreateResponse {
   uint32 id = 1;
+}
+
+message ListResponse {
+  repeated User user = 1;
 }
