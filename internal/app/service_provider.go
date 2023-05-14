@@ -28,6 +28,7 @@ type serviceProvider struct {
 
 	useCase struct {
 		createUserUseCase usecase.CreateUserUseCase
+		userListUseCase   usecase.ListUserUseCase
 	}
 }
 
@@ -83,6 +84,14 @@ func (c *serviceProvider) GetCreateUserUseCase(ctx context.Context) usecase.Crea
 	}
 
 	return c.useCase.createUserUseCase
+}
+
+func (c *serviceProvider) GetListUserUseCase(ctx context.Context) usecase.ListUserUseCase {
+	if c.useCase.userListUseCase == nil {
+		c.useCase.userListUseCase = usecase.NewListUserUseCase(c.GetUserRepo(ctx), c.GetLogger(ctx))
+	}
+
+	return c.useCase.userListUseCase
 }
 
 func (c *serviceProvider) GetGrpcV1ServerImpl(ctx context.Context) *grpcV1.Implementation {
