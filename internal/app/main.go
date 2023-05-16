@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"log"
 	"net"
 
 	"google.golang.org/grpc"
@@ -81,7 +80,7 @@ func (a *App) initGrpcV1Server(ctx context.Context) error {
 func (a *App) runGrpcV1Server(_ context.Context) error {
 	listener, err := net.Listen("tcp", a.config.GrpcPort)
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 
 	err = a.grpcV1Server.Serve(listener)

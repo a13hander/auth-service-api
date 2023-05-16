@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/a13hander/auth-service-api/internal/domain/errs"
 	"github.com/a13hander/auth-service-api/internal/domain/model"
@@ -58,5 +57,4 @@ func fillAttrs(u *model.User, req *CreateUserRequest) {
 	u.Username = req.Username
 	u.Password = req.Password
 	u.Role = req.Role
-	u.CreatedAt = time.Now()
 }

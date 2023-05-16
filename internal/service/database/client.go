@@ -52,11 +52,6 @@ func NewClient(ctx context.Context, conf DbConfig) Client {
 }
 
 func (c *client) ExecContext(ctx context.Context, q Query, args ...interface{}) (pgconn.CommandTag, error) {
-	//tx := ctx.Value("tx")
-	//if tx != nil {
-	//	return tx.(*pgx.Tx).Exec(ctx, q.QueryRaw, args...)
-	//}
-
 	return c.pg.Exec(ctx, q.QueryRaw, args...)
 }
 
