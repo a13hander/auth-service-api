@@ -1,29 +1,21 @@
 package main
 
 import (
+	"context"
 	"log"
-	"net"
 
-	"github.com/a13hander/auth-service-api/internal/container"
-	desc "github.com/a13hander/auth-service-api/pkg/auth_v1"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"github.com/a13hander/auth-service-api/internal/app"
 )
 
 func main() {
-	cont := container.Build()
-	config := container.GetConfig()
+	ctx := context.Background()
 
-	listener, err := net.Listen("tcp", config.GrpcPort)
+	a, err := app.NewApp(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	server := grpc.NewServer()
-	reflection.Register(server)
-	desc.RegisterAuthV1Server(server, cont.Grpc.V1)
-
-	err = server.Serve(listener)
+	err = a.Run(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}

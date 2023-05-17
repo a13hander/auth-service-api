@@ -2,20 +2,21 @@ package database
 
 import (
 	"context"
+
 	sq "github.com/Masterminds/squirrel"
+
 	"github.com/a13hander/auth-service-api/internal/domain/model"
-	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 const tableName = "users"
 
 type UserRepo struct {
-	pool *pgxpool.Pool
+	dbClient Client
 }
 
-func NewUserRepo(pool *pgxpool.Pool) *UserRepo {
+func NewUserRepo(dbClient Client) *UserRepo {
 	return &UserRepo{
-		pool: pool,
+		dbClient: dbClient,
 	}
 }
 
@@ -31,7 +32,11 @@ func (r *UserRepo) Create(ctx context.Context, u *model.User) error {
 		return err
 	}
 
-	row := r.pool.QueryRow(ctx, sql, v...)
+	q := Query{
+		Name:     "UserRepo.Create",
+		QueryRaw: sql,
+	}
+	row := r.dbClient.QueryRowContext(ctx, q, v...)
 
 	id := 0
 	if err := row.Scan(&id); err != nil {
@@ -41,4 +46,29 @@ func (r *UserRepo) Create(ctx context.Context, u *model.User) error {
 	u.Id = id
 
 	return nil
+}
+
+func (r *UserRepo) GetAll(ctx context.Context) ([]*model.User, error) {
+	sql, args, err := sq.Select("id", "email", "username", "role", "created_at").
+		From(tableName).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
+	q := Query{
+		Name:     "UserRepo.GetAll",
+		QueryRaw: sql,
+	}
+
+	const predefinedSize = 100
+	users := make([]*model.User, 0, predefinedSize)
+	err = r.dbClient.Select(ctx, &users, q, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }

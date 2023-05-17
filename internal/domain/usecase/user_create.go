@@ -3,18 +3,11 @@ package usecase
 import (
 	"context"
 	"fmt"
+
 	"github.com/a13hander/auth-service-api/internal/domain/errs"
 	"github.com/a13hander/auth-service-api/internal/domain/model"
 	"github.com/a13hander/auth-service-api/internal/domain/util"
 )
-
-type UserRepo interface {
-	Create(ctx context.Context, u *model.User) error
-}
-
-type UserValidator interface {
-	ValidateCreating(r *CreateUserRequest) error
-}
 
 type CreateUserRequest struct {
 	Email           string
@@ -28,17 +21,17 @@ func (r *CreateUserRequest) String() string {
 	return fmt.Sprintf("%v", *r)
 }
 
-type CreateUserUseCase struct {
+type createUserUseCase struct {
 	validator UserValidator
 	repo      UserRepo
 	l         util.Logger
 }
 
-func NewCreateUserUseCase(validator UserValidator, repo UserRepo, l util.Logger) *CreateUserUseCase {
-	return &CreateUserUseCase{validator: validator, repo: repo, l: l}
+func NewCreateUserUseCase(validator UserValidator, repo UserRepo, l util.Logger) *createUserUseCase {
+	return &createUserUseCase{validator: validator, repo: repo, l: l}
 }
 
-func (c *CreateUserUseCase) Run(ctx context.Context, req *CreateUserRequest) (int, error) {
+func (c *createUserUseCase) Run(ctx context.Context, req *CreateUserRequest) (int, error) {
 	err := c.validator.ValidateCreating(req)
 	if err != nil {
 		return 0, errs.NewInvalidArgumentError(err.Error())
