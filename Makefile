@@ -11,6 +11,7 @@ install-deps:
 	go install github.com/kisielk/errcheck@latest
 	GOBIN=$(CURDIR)/bin go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
 	GOBIN=$(CURDIR)/bin go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+	GOBIN=$(CURDIR)/bin go install github.com/envoyproxy/protoc-gen-validate@v1
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(CURDIR)/bin
 
 env-up:
@@ -36,6 +37,10 @@ lint:
 
 generate:
 	mkdir -p pkg/auth_v1
-	protoc --proto_path api/auth_v1 --go_out=pkg/auth_v1 --go_opt=paths=source_relative --go-grpc_out=pkg/auth_v1 --go-grpc_opt=paths=source_relative \
+	protoc --proto_path api/auth_v1 \
+	--proto_path vendor.protogen \
+	--go_out=pkg/auth_v1 --go_opt=paths=source_relative --go-grpc_out=pkg/auth_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go=bin/protoc-gen-go \
-	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc api/auth_v1/service.proto
+	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
+	--plugin=protoc-gen-validate=bin/protoc-gen-validate --validate_out=lang=go:pkg/auth_v1 --validate_opt=paths=source_relative \
+	api/auth_v1/service.proto
