@@ -4,6 +4,7 @@ package auth_v1;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/a13hander/auth-service-app/pkg/auth_v1;auth_v1";
 
@@ -18,8 +19,8 @@ enum Role {
 }
 
 message UserInfo {
-  string email = 1;
-  string username = 2;
+  string email = 1 [(validate.rules).string.email = true, (validate.rules).string.max_len = 100];
+  string username = 2 [(validate.rules).string.min_len = 2, (validate.rules).string.max_len = 100];
   Role role = 3;
 }
 
@@ -31,8 +32,8 @@ message User {
 
 message CreateRequest {
   UserInfo user = 1;
-  string password = 2;
-  string password_confirm = 3;
+  string password = 2 [(validate.rules).string.min_len = 8, (validate.rules).string.max_len = 32];
+  string password_confirm = 3 [(validate.rules).string.min_len = 8, (validate.rules).string.max_len = 32];
 }
 
 message CreateResponse {
