@@ -44,3 +44,11 @@ generate:
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	--plugin=protoc-gen-validate=bin/protoc-gen-validate --validate_out=lang=go:pkg/auth_v1 --validate_opt=paths=source_relative \
 	api/auth_v1/service.proto
+
+vendor-proto:
+	@if [ ! -d vendor.protogen/validate ]; then \
+		 mkdir -p vendor.protogen/validate && \
+		 git clone https://github.com/envoyproxy/protoc-gen-validate vendor.protogen/protoc-gen-validate && \
+		 mv vendor.protogen/protoc-gen-validate/validate/*.proto vendor.protogen/validate && \
+		 rm -rf vendor.protogen/protoc-gen-validate ; \
+	fi
