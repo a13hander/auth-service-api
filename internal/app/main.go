@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/cors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -128,9 +129,16 @@ func (a *App) initHttpV1Server(ctx context.Context) error {
 		return err
 	}
 
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Authorization"},
+		AllowCredentials: true,
+	})
+
 	a.httpV1Server = &http.Server{
 		Addr:    a.config.HttpPort,
-		Handler: mux,
+		Handler: corsMiddleware.Handler(mux),
 	}
 
 	return nil
