@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/a13hander/auth-service-api/internal/domain/errs"
@@ -15,6 +16,17 @@ type CreateUserRequest struct {
 	Password        string
 	PasswordConfirm string
 	Role            int
+	// TODO refactor
+	Engineer *struct {
+		Level    int64
+		Company  string
+		Language string
+	}
+	Manager *struct {
+		Level      int64
+		Company    string
+		Experience int64
+	}
 }
 
 func (r *CreateUserRequest) String() string {
@@ -57,4 +69,14 @@ func fillAttrs(u *model.User, req *CreateUserRequest) {
 	u.Username = req.Username
 	u.Password = req.Password
 	u.Role = req.Role
+
+	if req.Engineer != nil {
+		data, _ := json.Marshal(req.Engineer)
+		u.Specialisation = data
+	}
+
+	if req.Manager != nil {
+		data, _ := json.Marshal(req.Manager)
+		u.Specialisation = data
+	}
 }
