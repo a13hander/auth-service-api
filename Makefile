@@ -13,6 +13,7 @@ install-deps:
 	GOBIN=$(CURDIR)/bin go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 	GOBIN=$(CURDIR)/bin go install github.com/envoyproxy/protoc-gen-validate@v1
 	GOBIN=$(CURDIR)/bin go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.15.2
+	GOBIN=$(CURDIR)/bin go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.15.2
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(CURDIR)/bin
 
 env-up:
@@ -38,6 +39,7 @@ lint:
 
 generate:
 	mkdir -p pkg/auth_v1
+	mkdir -p pkg/swagger
 	protoc --proto_path api/auth_v1 \
 	--proto_path vendor.protogen \
 	--go_out=pkg/auth_v1 --go_opt=paths=source_relative --go-grpc_out=pkg/auth_v1 --go-grpc_opt=paths=source_relative \
@@ -46,6 +48,8 @@ generate:
 	--plugin=protoc-gen-validate=bin/protoc-gen-validate --validate_out=lang=go:pkg/auth_v1 --validate_opt=paths=source_relative \
 	--grpc-gateway_out=pkg/auth_v1 --grpc-gateway_opt=paths=source_relative \
     --plugin=protoc-gen-go-grpc-gateway=bin/protoc-gen-go-grpc-gateway \
+    --plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2 \
+    --openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
 	api/auth_v1/service.proto
 
 vendor-proto:
@@ -60,4 +64,10 @@ vendor-proto:
 		mkdir -p  vendor.protogen/google/ &&\
 		mv vendor.protogen/googleapis/google/api vendor.protogen/google &&\
 		rm -rf vendor.protogen/googleapis ;\
+	fi
+	@if [ ! -d vendor.protogen/protoc-gen-openapiv2 ]; then \
+		mkdir -p vendor.protogen/protoc-gen-openapiv2/options &&\
+		git clone https://github.com/grpc-ecosystem/grpc-gateway vendor.protogen/openapiv2 &&\
+		mv vendor.protogen/openapiv2/protoc-gen-openapiv2/options/*.proto vendor.protogen/protoc-gen-openapiv2/options &&\
+		rm -rf vendor.protogen/openapiv2 ;\
 	fi
