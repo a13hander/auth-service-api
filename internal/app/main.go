@@ -2,12 +2,14 @@ package app
 
 import (
 	"context"
+	"io"
 	"log"
 	"net"
 	"net/http"
 	"sync"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -16,6 +18,7 @@ import (
 	"github.com/a13hander/auth-service-api/internal/app/grpc_v1/interceptors"
 	"github.com/a13hander/auth-service-api/internal/config"
 	desc "github.com/a13hander/auth-service-api/pkg/auth_v1"
+	_ "github.com/a13hander/auth-service-api/statik"
 )
 
 type App struct {
@@ -23,6 +26,7 @@ type App struct {
 	config          *config.Config
 	grpcV1Server    *grpc.Server
 	httpV1Server    *http.Server
+	swaggerServer   *http.Server
 }
 
 func NewApp(ctx context.Context) (*App, error) {
@@ -43,7 +47,7 @@ func (a *App) Run(ctx context.Context) error {
 	}()
 
 	wg := &sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
@@ -63,6 +67,15 @@ func (a *App) Run(ctx context.Context) error {
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+
+		err := a.runSwaggerServer(ctx)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
 	wg.Wait()
 
 	return nil
@@ -74,6 +87,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initServiceProvider,
 		a.initGrpcV1Server,
 		a.initHttpV1Server,
+		a.initSwaggerServer,
 	}
 
 	for _, f := range inits {
@@ -144,6 +158,24 @@ func (a *App) initHttpV1Server(ctx context.Context) error {
 	return nil
 }
 
+func (a *App) initSwaggerServer(_ context.Context) error {
+	fileSystem, err := fs.New()
+	if err != nil {
+		return err
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", http.StripPrefix("/", http.FileServer(fileSystem)))
+	mux.HandleFunc("/api.swagger.json", serveSwaggerFile("/api.swagger.json"))
+
+	a.swaggerServer = &http.Server{
+		Addr:    a.config.SwaggerPort,
+		Handler: mux,
+	}
+
+	return nil
+}
+
 func (a *App) runHttpV1Server(_ context.Context) error {
 	log.Printf("Http server starting on %s\n", a.httpV1Server.Addr)
 
@@ -153,4 +185,45 @@ func (a *App) runHttpV1Server(_ context.Context) error {
 	}
 
 	return nil
+}
+
+func (a *App) runSwaggerServer(_ context.Context) error {
+	log.Printf("Swagger server starting on %s\n", a.swaggerServer.Addr)
+
+	err := a.swaggerServer.ListenAndServe()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func serveSwaggerFile(path string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fileSystem, err := fs.New()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		file, err := fileSystem.Open(path)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+
+		content, err := io.ReadAll(file)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, err = w.Write(content)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
 }

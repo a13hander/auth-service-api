@@ -9,8 +9,9 @@ import (
 )
 
 type Config struct {
-	GrpcPort string `env:"GRPC_PORT" env-required:"true"`
-	HttpPort string `env:"HTTP_PORT" env-required:"true"`
+	GrpcPort    string `env:"GRPC_PORT" env-required:"true"`
+	HttpPort    string `env:"HTTP_PORT" env-required:"true"`
+	SwaggerPort string `env:"SWAGGER_PORT" env-required:"true"`
 
 	Db struct {
 		Host     string `env:"POSTGRES_HOST" env-required:"true"`
