@@ -2,9 +2,14 @@ package app
 
 import (
 	"context"
+	"log"
 	"net"
+	"net/http"
+	"sync"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
 	"github.com/a13hander/auth-service-api/internal/app/grpc_v1/interceptors"
@@ -16,6 +21,7 @@ type App struct {
 	serviceProvider *serviceProvider
 	config          *config.Config
 	grpcV1Server    *grpc.Server
+	httpV1Server    *http.Server
 }
 
 func NewApp(ctx context.Context) (*App, error) {
@@ -35,10 +41,28 @@ func (a *App) Run(ctx context.Context) error {
 		closer.wait()
 	}()
 
-	err := a.runGrpcV1Server(ctx)
-	if err != nil {
-		return err
-	}
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+
+		err := a.runGrpcV1Server(ctx)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		err := a.runHttpV1Server(ctx)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	wg.Wait()
 
 	return nil
 }
@@ -48,6 +72,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initConfig,
 		a.initServiceProvider,
 		a.initGrpcV1Server,
+		a.initHttpV1Server,
 	}
 
 	for _, f := range inits {
@@ -79,12 +104,42 @@ func (a *App) initGrpcV1Server(ctx context.Context) error {
 }
 
 func (a *App) runGrpcV1Server(_ context.Context) error {
+	log.Printf("Grpc server starting on %s\n", a.config.GrpcPort)
+
 	listener, err := net.Listen("tcp", a.config.GrpcPort)
 	if err != nil {
 		return err
 	}
 
 	err = a.grpcV1Server.Serve(listener)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) initHttpV1Server(ctx context.Context) error {
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+
+	err := desc.RegisterAuthV1HandlerFromEndpoint(ctx, mux, a.config.GrpcPort, opts)
+	if err != nil {
+		return err
+	}
+
+	a.httpV1Server = &http.Server{
+		Addr:    a.config.HttpPort,
+		Handler: mux,
+	}
+
+	return nil
+}
+
+func (a *App) runHttpV1Server(_ context.Context) error {
+	log.Printf("Http server starting on %s\n", a.httpV1Server.Addr)
+
+	err := a.httpV1Server.ListenAndServe()
 	if err != nil {
 		return err
 	}

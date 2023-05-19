@@ -5,11 +5,17 @@ package auth_v1;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "validate/validate.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/a13hander/auth-service-app/pkg/auth_v1;auth_v1";
 
 service AuthV1 {
-  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option(google.api.http) = {
+      post: "/auth/v1/user-create"
+      body: "*"
+    };
+  };
   rpc List(google.protobuf.Empty) returns (ListResponse);
 }
 
