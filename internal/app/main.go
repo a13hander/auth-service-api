@@ -25,7 +25,7 @@ type App struct {
 	serviceProvider *serviceProvider
 	config          *config.Config
 	grpcV1Server    *grpc.Server
-	httpV1Server    *http.Server
+	httpServer      *http.Server
 	swaggerServer   *http.Server
 }
 
@@ -61,7 +61,7 @@ func (a *App) Run(ctx context.Context) error {
 	go func() {
 		defer wg.Done()
 
-		err := a.runHttpV1Server(ctx)
+		err := a.runHttpServer(ctx)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -150,7 +150,7 @@ func (a *App) initHttpV1Server(ctx context.Context) error {
 		AllowCredentials: true,
 	})
 
-	a.httpV1Server = &http.Server{
+	a.httpServer = &http.Server{
 		Addr:    a.config.HttpPort,
 		Handler: corsMiddleware.Handler(mux),
 	}
@@ -176,10 +176,10 @@ func (a *App) initSwaggerServer(_ context.Context) error {
 	return nil
 }
 
-func (a *App) runHttpV1Server(_ context.Context) error {
-	log.Printf("Http server starting on %s\n", a.httpV1Server.Addr)
+func (a *App) runHttpServer(_ context.Context) error {
+	log.Printf("Http server starting on %s\n", a.httpServer.Addr)
 
-	err := a.httpV1Server.ListenAndServe()
+	err := a.httpServer.ListenAndServe()
 	if err != nil {
 		return err
 	}
