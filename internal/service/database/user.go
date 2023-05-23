@@ -23,8 +23,8 @@ func NewUserRepo(dbClient Client) *UserRepo {
 func (r *UserRepo) Create(ctx context.Context, u *model.User) error {
 	sql, v, err := sq.Insert(tableName).
 		PlaceholderFormat(sq.Dollar).
-		Columns("email", "username", "password", "role", "created_at", "updated_at").
-		Values(u.Email, u.Username, u.Password, u.Role, u.CreatedAt, u.UpdatedAt).
+		Columns("email", "username", "password", "role", "created_at", "updated_at", "specialisation").
+		Values(u.Email, u.Username, u.Password, u.Role, u.CreatedAt, u.UpdatedAt, u.Specialisation).
 		Suffix("returning id").
 		ToSql()
 

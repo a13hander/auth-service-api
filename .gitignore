@@ -29,3 +29,4 @@ cmd/test
 .env
 
 docker-compose.override.yml
+/vendor.protogen/

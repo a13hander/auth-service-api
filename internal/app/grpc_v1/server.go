@@ -38,12 +38,36 @@ func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (r
 	}()
 
 	userInfo := req.GetUser()
+
 	createReq := usecase.CreateUserRequest{
 		Email:           userInfo.GetEmail(),
 		Username:        userInfo.GetUsername(),
 		Password:        req.GetPassword(),
 		PasswordConfirm: req.GetPasswordConfirm(),
 		Role:            int(userInfo.GetRole()),
+	}
+
+	switch v := userInfo.GetSpecialisation().(type) {
+	case *desc.UserInfo_Engineer:
+		createReq.Engineer = &struct {
+			Level    int64
+			Company  string
+			Language string
+		}{
+			Level:    v.Engineer.GetLevel(),
+			Company:  v.Engineer.GetCompany(),
+			Language: v.Engineer.GetLanguage(),
+		}
+	case *desc.UserInfo_Manager:
+		createReq.Manager = &struct {
+			Level      int64
+			Company    string
+			Experience int64
+		}{
+			Level:      v.Manager.GetLevel(),
+			Company:    v.Manager.GetCompany(),
+			Experience: v.Manager.GetExperience(),
+		}
 	}
 
 	id, err := i.createUserUseCase.Run(ctx, &createReq)

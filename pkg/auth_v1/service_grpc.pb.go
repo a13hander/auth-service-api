@@ -23,7 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthV1Client interface {
+	// Создает пользователя
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
+	// Список пользователей
 	List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListResponse, error)
 }
 
@@ -57,7 +59,9 @@ func (c *authV1Client) List(ctx context.Context, in *emptypb.Empty, opts ...grpc
 // All implementations must embed UnimplementedAuthV1Server
 // for forward compatibility
 type AuthV1Server interface {
+	// Создает пользователя
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
+	// Список пользователей
 	List(context.Context, *emptypb.Empty) (*ListResponse, error)
 	mustEmbedUnimplementedAuthV1Server()
 }
