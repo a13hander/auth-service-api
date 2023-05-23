@@ -86,7 +86,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initConfig,
 		a.initServiceProvider,
 		a.initGrpcV1Server,
-		a.initHttpV1Server,
+		a.initHttpServer,
 		a.initSwaggerServer,
 	}
 
@@ -134,7 +134,7 @@ func (a *App) runGrpcV1Server(_ context.Context) error {
 	return nil
 }
 
-func (a *App) initHttpV1Server(ctx context.Context) error {
+func (a *App) initHttpServer(ctx context.Context) error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
