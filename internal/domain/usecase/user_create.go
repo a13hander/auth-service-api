@@ -67,7 +67,7 @@ func (c *createUserUseCase) Run(ctx context.Context, req *CreateUserRequest) (in
 func fillAttrs(u *model.User, req *CreateUserRequest) {
 	u.Email = req.Email
 	u.Username = req.Username
-	u.Password = req.Password
+	u.Password = util.HashPassword(req.Password)
 	u.Role = req.Role
 
 	if req.Engineer != nil {
