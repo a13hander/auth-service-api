@@ -34,6 +34,10 @@ service AuthV1 {
       body: "*"
     };
   };
+  // Получение refresh токена
+  rpc GetRefreshToken(GetRefreshTokenRequest) returns (TokenResponse) {}
+  // Получение access токена
+  rpc GetAccessToken(GetAccessTokenRequest) returns (TokenResponse) {}
 }
 
 enum Role {
@@ -81,4 +85,17 @@ message CreateResponse {
 
 message ListResponse {
   repeated User user = 1;
+}
+
+message GetRefreshTokenRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message GetAccessTokenRequest {
+  string refreshToken = 1;
+}
+
+message TokenResponse {
+  string token = 1;
 }

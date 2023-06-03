@@ -163,6 +163,14 @@
       ],
       "default": "USER"
     },
+    "auth_v1TokenResponse": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
     "auth_v1User": {
       "type": "object",
       "properties": {

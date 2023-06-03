@@ -48,6 +48,32 @@ func (r *UserRepo) Create(ctx context.Context, u *model.User) error {
 	return nil
 }
 
+func (r *UserRepo) Get(ctx context.Context, username string) (*model.User, error) {
+	sql, args, err := sq.Select("id", "email", "username", "password", "role", "created_at", "specialisation").
+		From(tableName).
+		PlaceholderFormat(sq.Dollar).
+		Where(sq.Eq{"username": username}).
+		Limit(1).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
+	q := Query{
+		Name:     "UserRepo.Get",
+		QueryRaw: sql,
+	}
+
+	user := &model.User{}
+	err = r.dbClient.Get(ctx, user, q, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (r *UserRepo) GetAll(ctx context.Context) ([]*model.User, error) {
 	sql, args, err := sq.Select("id", "email", "username", "role", "created_at").
 		From(tableName).

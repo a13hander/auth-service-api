@@ -11,6 +11,7 @@ type UserValidator interface {
 }
 
 type UserRepo interface {
+	Get(ctx context.Context, username string) (*model.User, error)
 	Create(ctx context.Context, u *model.User) error
 	GetAll(ctx context.Context) ([]*model.User, error)
 }
@@ -21,4 +22,12 @@ type CreateUserUseCase interface {
 
 type ListUserUseCase interface {
 	Run(ctx context.Context) ([]*model.User, error)
+}
+
+type RefreshTokenGenerator interface {
+	Generate(ctx context.Context, username string, password string) (string, error)
+}
+
+type AccessTokenGenerator interface {
+	Generate(ctx context.Context, refreshToken string) (string, error)
 }

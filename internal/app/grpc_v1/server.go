@@ -17,13 +17,16 @@ import (
 type Implementation struct {
 	desc.UnimplementedAuthV1Server
 
-	createUserUseCase usecase.CreateUserUseCase
-	listUserUseCase   usecase.ListUserUseCase
-	l                 util.Logger
+	createUserUseCase    usecase.CreateUserUseCase
+	listUserUseCase      usecase.ListUserUseCase
+	generateRefreshToken usecase.RefreshTokenGenerator
+	generateAccessToken  usecase.AccessTokenGenerator
+
+	l util.Logger
 }
 
-func NewImplementation(createUserUseCase usecase.CreateUserUseCase, listUserUseCase usecase.ListUserUseCase, l util.Logger) *Implementation {
-	return &Implementation{createUserUseCase: createUserUseCase, listUserUseCase: listUserUseCase, l: l}
+func NewImplementation(createUserUseCase usecase.CreateUserUseCase, listUserUseCase usecase.ListUserUseCase, generateRefreshToken usecase.RefreshTokenGenerator, generateAccessToken usecase.AccessTokenGenerator, l util.Logger) *Implementation {
+	return &Implementation{createUserUseCase: createUserUseCase, listUserUseCase: listUserUseCase, generateRefreshToken: generateRefreshToken, generateAccessToken: generateAccessToken, l: l}
 }
 
 func (i *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (resp *desc.CreateResponse, err error) {
@@ -109,4 +112,27 @@ func (i *Implementation) List(ctx context.Context, _ *emptypb.Empty) (resp *desc
 	}
 
 	return &desc.ListResponse{User: descUsers}, nil
+}
+
+func (i *Implementation) GetRefreshToken(ctx context.Context, req *desc.GetRefreshTokenRequest) (*desc.TokenResponse, error) {
+	username := req.GetUsername()
+	password := req.GetPassword()
+
+	token, err := i.generateRefreshToken.Generate(ctx, username, password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &desc.TokenResponse{Token: token}, nil
+}
+
+func (i *Implementation) GetAccessToken(ctx context.Context, req *desc.GetAccessTokenRequest) (*desc.TokenResponse, error) {
+	refreshToken := req.GetRefreshToken()
+
+	token, err := i.generateAccessToken.Generate(ctx, refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return &desc.TokenResponse{Token: token}, nil
 }

@@ -29,6 +29,9 @@ type serviceProvider struct {
 	useCase struct {
 		createUserUseCase usecase.CreateUserUseCase
 		userListUseCase   usecase.ListUserUseCase
+
+		refreshTokenGenerator usecase.RefreshTokenGenerator
+		accessTokenGenerator  usecase.AccessTokenGenerator
 	}
 }
 
@@ -94,11 +97,31 @@ func (c *serviceProvider) GetListUserUseCase(ctx context.Context) usecase.ListUs
 	return c.useCase.userListUseCase
 }
 
+func (c *serviceProvider) GetRefreshTokenGenerator(ctx context.Context) usecase.RefreshTokenGenerator {
+	if c.useCase.refreshTokenGenerator == nil {
+		conf := config.GetConfig()
+		c.useCase.refreshTokenGenerator = usecase.NewRefreshTokenGenerator(c.GetUserRepo(ctx), conf.RefreshTokenSecretKey, conf.RefreshTokenExpirationMinutes)
+	}
+
+	return c.useCase.refreshTokenGenerator
+}
+
+func (c *serviceProvider) GetAccessTokenGenerator(ctx context.Context) usecase.AccessTokenGenerator {
+	if c.useCase.accessTokenGenerator == nil {
+		conf := config.GetConfig()
+		c.useCase.accessTokenGenerator = usecase.NewAccessTokenGenerator(c.GetUserRepo(ctx), conf.RefreshTokenSecretKey, conf.AccessTokenSecretKey, conf.AccessTokenExpirationMinutes)
+	}
+
+	return c.useCase.accessTokenGenerator
+}
+
 func (c *serviceProvider) GetGrpcV1ServerImpl(ctx context.Context) *grpcV1.Implementation {
 	if c.grpcV1ServerImpl == nil {
 		c.grpcV1ServerImpl = grpcV1.NewImplementation(
 			c.GetCreateUserUseCase(ctx),
 			c.GetListUserUseCase(ctx),
+			c.GetRefreshTokenGenerator(ctx),
+			c.GetAccessTokenGenerator(ctx),
 			c.GetLogger(ctx),
 		)
 	}

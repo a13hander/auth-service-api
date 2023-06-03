@@ -27,6 +27,10 @@ type AuthV1Client interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
 	// Список пользователей
 	List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListResponse, error)
+	// Получение refresh токена
+	GetRefreshToken(ctx context.Context, in *GetRefreshTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error)
+	// Получение access токена
+	GetAccessToken(ctx context.Context, in *GetAccessTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error)
 }
 
 type authV1Client struct {
@@ -55,6 +59,24 @@ func (c *authV1Client) List(ctx context.Context, in *emptypb.Empty, opts ...grpc
 	return out, nil
 }
 
+func (c *authV1Client) GetRefreshToken(ctx context.Context, in *GetRefreshTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
+	out := new(TokenResponse)
+	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/GetRefreshToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authV1Client) GetAccessToken(ctx context.Context, in *GetAccessTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
+	out := new(TokenResponse)
+	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/GetAccessToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthV1Server is the server API for AuthV1 service.
 // All implementations must embed UnimplementedAuthV1Server
 // for forward compatibility
@@ -63,6 +85,10 @@ type AuthV1Server interface {
 	Create(context.Context, *CreateRequest) (*CreateResponse, error)
 	// Список пользователей
 	List(context.Context, *emptypb.Empty) (*ListResponse, error)
+	// Получение refresh токена
+	GetRefreshToken(context.Context, *GetRefreshTokenRequest) (*TokenResponse, error)
+	// Получение access токена
+	GetAccessToken(context.Context, *GetAccessTokenRequest) (*TokenResponse, error)
 	mustEmbedUnimplementedAuthV1Server()
 }
 
@@ -75,6 +101,12 @@ func (UnimplementedAuthV1Server) Create(context.Context, *CreateRequest) (*Creat
 }
 func (UnimplementedAuthV1Server) List(context.Context, *emptypb.Empty) (*ListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedAuthV1Server) GetRefreshToken(context.Context, *GetRefreshTokenRequest) (*TokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRefreshToken not implemented")
+}
+func (UnimplementedAuthV1Server) GetAccessToken(context.Context, *GetAccessTokenRequest) (*TokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAccessToken not implemented")
 }
 func (UnimplementedAuthV1Server) mustEmbedUnimplementedAuthV1Server() {}
 
@@ -125,6 +157,42 @@ func _AuthV1_List_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthV1_GetRefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRefreshTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthV1Server).GetRefreshToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth_v1.AuthV1/GetRefreshToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthV1Server).GetRefreshToken(ctx, req.(*GetRefreshTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthV1_GetAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAccessTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthV1Server).GetAccessToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth_v1.AuthV1/GetAccessToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthV1Server).GetAccessToken(ctx, req.(*GetAccessTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthV1_ServiceDesc is the grpc.ServiceDesc for AuthV1 service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +207,14 @@ var AuthV1_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "List",
 			Handler:    _AuthV1_List_Handler,
+		},
+		{
+			MethodName: "GetRefreshToken",
+			Handler:    _AuthV1_GetRefreshToken_Handler,
+		},
+		{
+			MethodName: "GetAccessToken",
+			Handler:    _AuthV1_GetAccessToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
