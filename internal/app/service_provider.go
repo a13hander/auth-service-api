@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	grpcV1 "github.com/a13hander/auth-service-api/internal/app/grpc_v1"
+	grpcV1 "github.com/a13hander/auth-service-api/internal/app/auth_v1"
 	"github.com/a13hander/auth-service-api/internal/config"
 
 	"github.com/a13hander/auth-service-api/internal/domain/usecase"

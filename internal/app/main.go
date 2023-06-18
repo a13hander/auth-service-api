@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/a13hander/auth-service-api/internal/app/grpc_v1/interceptors"
+	"github.com/a13hander/auth-service-api/internal/app/auth_v1/interceptors"
 	"github.com/a13hander/auth-service-api/internal/config"
 	desc "github.com/a13hander/auth-service-api/pkg/auth_v1"
 	_ "github.com/a13hander/auth-service-api/statik"
