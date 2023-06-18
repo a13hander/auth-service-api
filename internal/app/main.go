@@ -17,7 +17,8 @@ import (
 
 	"github.com/a13hander/auth-service-api/internal/app/auth_v1/interceptors"
 	"github.com/a13hander/auth-service-api/internal/config"
-	desc "github.com/a13hander/auth-service-api/pkg/auth_v1"
+	descAccess "github.com/a13hander/auth-service-api/pkg/access_v1"
+	descAuth "github.com/a13hander/auth-service-api/pkg/auth_v1"
 	_ "github.com/a13hander/auth-service-api/statik"
 )
 
@@ -113,7 +114,9 @@ func (a *App) initServiceProvider(_ context.Context) error {
 func (a *App) initGrpcV1Server(ctx context.Context) error {
 	a.grpcV1Server = grpc.NewServer(grpc.UnaryInterceptor(interceptors.ValidateInterceptor))
 	reflection.Register(a.grpcV1Server)
-	desc.RegisterAuthV1Server(a.grpcV1Server, a.serviceProvider.GetGrpcV1ServerImpl(ctx))
+
+	descAuth.RegisterAuthV1Server(a.grpcV1Server, a.serviceProvider.GetAuthV1ServerImpl(ctx))
+	descAccess.RegisterAccessV1Server(a.grpcV1Server, a.serviceProvider.GetAccessV1ServerImpl(ctx))
 
 	return nil
 }
@@ -138,7 +141,7 @@ func (a *App) initHttpServer(ctx context.Context) error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
-	err := desc.RegisterAuthV1HandlerFromEndpoint(ctx, mux, a.config.GrpcPort, opts)
+	err := descAuth.RegisterAuthV1HandlerFromEndpoint(ctx, mux, a.config.GrpcPort, opts)
 	if err != nil {
 		return err
 	}
@@ -211,7 +214,10 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		defer file.Close()
+
+		defer func() {
+			_ = file.Close()
+		}()
 
 		content, err := io.ReadAll(file)
 		if err != nil {

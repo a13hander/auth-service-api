@@ -3,7 +3,9 @@ package app
 import (
 	"context"
 
-	grpcV1 "github.com/a13hander/auth-service-api/internal/app/auth_v1"
+	accessV1 "github.com/a13hander/auth-service-api/internal/app/access_v1"
+	authV1 "github.com/a13hander/auth-service-api/internal/app/auth_v1"
+
 	"github.com/a13hander/auth-service-api/internal/config"
 
 	"github.com/a13hander/auth-service-api/internal/domain/usecase"
@@ -14,9 +16,10 @@ import (
 )
 
 type serviceProvider struct {
-	logger           util.Logger
-	dbClient         database.Client
-	grpcV1ServerImpl *grpcV1.Implementation
+	logger             util.Logger
+	dbClient           database.Client
+	authV1ServerImpl   *authV1.Implementation
+	accessV1ServerImpl *accessV1.Implementation
 
 	repo struct {
 		userRepo usecase.UserRepo
@@ -32,6 +35,8 @@ type serviceProvider struct {
 
 		refreshTokenGenerator usecase.RefreshTokenGenerator
 		accessTokenGenerator  usecase.AccessTokenGenerator
+
+		checkEndpoint usecase.CheckEndpoint
 	}
 }
 
@@ -115,9 +120,9 @@ func (c *serviceProvider) GetAccessTokenGenerator(ctx context.Context) usecase.A
 	return c.useCase.accessTokenGenerator
 }
 
-func (c *serviceProvider) GetGrpcV1ServerImpl(ctx context.Context) *grpcV1.Implementation {
-	if c.grpcV1ServerImpl == nil {
-		c.grpcV1ServerImpl = grpcV1.NewImplementation(
+func (c *serviceProvider) GetAuthV1ServerImpl(ctx context.Context) *authV1.Implementation {
+	if c.authV1ServerImpl == nil {
+		c.authV1ServerImpl = authV1.NewImplementation(
 			c.GetCreateUserUseCase(ctx),
 			c.GetListUserUseCase(ctx),
 			c.GetRefreshTokenGenerator(ctx),
@@ -126,5 +131,21 @@ func (c *serviceProvider) GetGrpcV1ServerImpl(ctx context.Context) *grpcV1.Imple
 		)
 	}
 
-	return c.grpcV1ServerImpl
+	return c.authV1ServerImpl
+}
+
+func (c *serviceProvider) GetCheckEndpoint(_ context.Context) usecase.CheckEndpoint {
+	if c.useCase.checkEndpoint == nil {
+		c.useCase.checkEndpoint = usecase.NewCheckEndpoint()
+	}
+
+	return c.useCase.checkEndpoint
+}
+
+func (c *serviceProvider) GetAccessV1ServerImpl(ctx context.Context) *accessV1.Implementation {
+	if c.accessV1ServerImpl == nil {
+		c.accessV1ServerImpl = accessV1.NewImplementation(c.GetCheckEndpoint(ctx), c.GetLogger(ctx))
+	}
+
+	return c.accessV1ServerImpl
 }
