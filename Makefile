@@ -37,6 +37,9 @@ migrate-status:
 lint:
 	bin/golangci-lint run ./...
 
+run:
+	go run cmd/server/main.go
+
 generate:
 	mkdir -p pkg/swagger
 	make generate-auth-api

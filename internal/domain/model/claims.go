@@ -7,4 +7,5 @@ import (
 type Claims struct {
 	jwt.RegisteredClaims
 	Username string
+	Role     int
 }

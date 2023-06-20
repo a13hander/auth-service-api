@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/envoyproxy/protoc-gen-validate v0.9.1
+	github.com/envoyproxy/protoc-gen-validate v0.10.1
 	github.com/georgysavva/scany v1.2.1
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2
@@ -15,14 +15,14 @@ require (
 	github.com/rakyll/statik v0.1.7
 	github.com/rs/cors v1.9.0
 	golang.org/x/crypto v0.9.0
-	google.golang.org/genproto v0.0.0-20230223222841-637eb2293923
-	google.golang.org/grpc v1.54.0
+	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
+	google.golang.org/grpc v1.56.0
 	google.golang.org/protobuf v1.30.0
 )
 
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

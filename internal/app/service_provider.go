@@ -22,7 +22,8 @@ type serviceProvider struct {
 	accessV1ServerImpl *accessV1.Implementation
 
 	repo struct {
-		userRepo usecase.UserRepo
+		userRepo   usecase.UserRepo
+		accessRepo usecase.AccessRepo
 	}
 
 	validator struct {
@@ -102,6 +103,14 @@ func (c *serviceProvider) GetListUserUseCase(ctx context.Context) usecase.ListUs
 	return c.useCase.userListUseCase
 }
 
+func (c *serviceProvider) GetAccessRepo(ctx context.Context) usecase.AccessRepo {
+	if c.repo.accessRepo == nil {
+		c.repo.accessRepo = database.NewAccessRepo(c.GetDbClient(ctx))
+	}
+
+	return c.repo.accessRepo
+}
+
 func (c *serviceProvider) GetRefreshTokenGenerator(ctx context.Context) usecase.RefreshTokenGenerator {
 	if c.useCase.refreshTokenGenerator == nil {
 		conf := config.GetConfig()
@@ -134,9 +143,10 @@ func (c *serviceProvider) GetAuthV1ServerImpl(ctx context.Context) *authV1.Imple
 	return c.authV1ServerImpl
 }
 
-func (c *serviceProvider) GetCheckEndpoint(_ context.Context) usecase.CheckEndpoint {
+func (c *serviceProvider) GetCheckEndpoint(ctx context.Context) usecase.CheckEndpoint {
 	if c.useCase.checkEndpoint == nil {
-		c.useCase.checkEndpoint = usecase.NewCheckEndpoint()
+		conf := config.GetConfig()
+		c.useCase.checkEndpoint = usecase.NewCheckEndpoint(conf.AccessTokenSecretKey, c.GetAccessRepo(ctx))
 	}
 
 	return c.useCase.checkEndpoint

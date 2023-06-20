@@ -15,6 +15,7 @@ func GenerateToken(user *model.User, secretKey []byte, duration time.Duration) (
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 		},
 		Username: user.Username,
+		Role:     user.Role,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, clms)
