@@ -118,12 +118,15 @@ func (a *App) initGrpcV1Server(ctx context.Context) error {
 		return err
 	}
 
+	rateLimiterInterceptor := interceptors.NewRateLimiterInterceptor(a.serviceProvider.GetRateLimiter(ctx))
+
 	a.grpcV1Server = grpc.NewServer(
 		grpc.Creds(transportCreds),
 		grpc.UnaryInterceptor(
 			grpcMiddleware.ChainUnaryServer(
 				interceptors.ErrorCodesInterceptor,
 				interceptors.ValidateInterceptor,
+				rateLimiterInterceptor.Unary,
 			),
 		),
 	)

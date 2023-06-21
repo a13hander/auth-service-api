@@ -5,6 +5,7 @@ import (
 
 	accessV1 "github.com/a13hander/auth-service-api/internal/app/access_v1"
 	authV1 "github.com/a13hander/auth-service-api/internal/app/auth_v1"
+	"github.com/a13hander/auth-service-api/internal/service/ratelimit"
 
 	"github.com/a13hander/auth-service-api/internal/config"
 
@@ -39,6 +40,10 @@ type serviceProvider struct {
 
 		checkEndpoint usecase.CheckEndpoint
 	}
+
+	services struct {
+		rateLimiter ratelimit.RateLimiter
+	}
 }
 
 func newServiceProvider() *serviceProvider {
@@ -69,6 +74,15 @@ func (c serviceProvider) GetDbClient(ctx context.Context) database.Client {
 	}
 
 	return c.dbClient
+}
+
+func (c serviceProvider) GetRateLimiter(ctx context.Context) ratelimit.RateLimiter {
+	if c.services.rateLimiter == nil {
+		conf := config.GetConfig()
+		c.services.rateLimiter = ratelimit.NewLimiter(ctx, conf.RateLimit, conf.RateLimitPeriod)
+	}
+
+	return c.services.rateLimiter
 }
 
 func (c *serviceProvider) GetUserRepo(ctx context.Context) usecase.UserRepo {
