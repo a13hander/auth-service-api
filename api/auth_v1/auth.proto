@@ -35,9 +35,9 @@ service AuthV1 {
     };
   };
   // Получение refresh токена
-  rpc GetRefreshToken(GetRefreshTokenRequest) returns (TokenResponse) {}
+  rpc GetRefreshToken(GetRefreshTokenRequest) returns (RefreshTokenResponse) {}
   // Получение access токена
-  rpc GetAccessToken(GetAccessTokenRequest) returns (TokenResponse) {}
+  rpc GetAccessToken(GetAccessTokenRequest) returns (AccessTokenResponse) {}
 }
 
 enum Role {
@@ -96,6 +96,10 @@ message GetAccessTokenRequest {
   string refreshToken = 1;
 }
 
-message TokenResponse {
-  string token = 1;
+message RefreshTokenResponse {
+  string refresh_token = 1;
+}
+
+message AccessTokenResponse {
+  string access_token = 1;
 }

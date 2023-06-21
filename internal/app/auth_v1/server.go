@@ -114,25 +114,20 @@ func (i *Implementation) List(ctx context.Context, _ *emptypb.Empty) (resp *desc
 	return &desc.ListResponse{User: descUsers}, nil
 }
 
-func (i *Implementation) GetRefreshToken(ctx context.Context, req *desc.GetRefreshTokenRequest) (*desc.TokenResponse, error) {
-	username := req.GetUsername()
-	password := req.GetPassword()
-
-	token, err := i.generateRefreshToken.Generate(ctx, username, password)
+func (i *Implementation) GetRefreshToken(ctx context.Context, req *desc.GetRefreshTokenRequest) (*desc.RefreshTokenResponse, error) {
+	token, err := i.generateRefreshToken.Generate(ctx, req.GetUsername(), req.GetPassword())
 	if err != nil {
 		return nil, err
 	}
 
-	return &desc.TokenResponse{Token: token}, nil
+	return &desc.RefreshTokenResponse{RefreshToken: token}, nil
 }
 
-func (i *Implementation) GetAccessToken(ctx context.Context, req *desc.GetAccessTokenRequest) (*desc.TokenResponse, error) {
-	refreshToken := req.GetRefreshToken()
-
-	token, err := i.generateAccessToken.Generate(ctx, refreshToken)
+func (i *Implementation) GetAccessToken(ctx context.Context, req *desc.GetAccessTokenRequest) (*desc.AccessTokenResponse, error) {
+	token, err := i.generateAccessToken.Generate(ctx, req.GetRefreshToken())
 	if err != nil {
 		return nil, err
 	}
 
-	return &desc.TokenResponse{Token: token}, nil
+	return &desc.AccessTokenResponse{AccessToken: token}, nil
 }

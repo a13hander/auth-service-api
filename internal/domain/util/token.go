@@ -37,7 +37,10 @@ func VerifyToken(token string, secretKey []byte) (*model.Claims, error) {
 		return nil, errors.New("invalid token")
 	}
 
-	claims := t.Claims.(*model.Claims)
+	claims, ok := t.Claims.(*model.Claims)
+	if !ok {
+		return nil, errors.New("invalid token claims")
+	}
 
 	return claims, nil
 }

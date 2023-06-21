@@ -47,8 +47,15 @@ func GetConfig() *Config {
 			log.Fatalln(err)
 		}
 
-		config.RefreshTokenSecretKey, _ = base64.StdEncoding.DecodeString(string(config.RefreshTokenSecretKey))
-		config.AccessTokenSecretKey, _ = base64.StdEncoding.DecodeString(string(config.AccessTokenSecretKey))
+		config.RefreshTokenSecretKey, err = base64.StdEncoding.DecodeString(string(config.RefreshTokenSecretKey))
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		config.AccessTokenSecretKey, err = base64.StdEncoding.DecodeString(string(config.AccessTokenSecretKey))
+		if err != nil {
+			log.Fatalln(err)
+		}
 	})
 
 	return config

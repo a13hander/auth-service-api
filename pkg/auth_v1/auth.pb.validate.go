@@ -1270,44 +1270,44 @@ var _ interface {
 	ErrorName() string
 } = GetAccessTokenRequestValidationError{}
 
-// Validate checks the field values on TokenResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *TokenResponse) Validate() error {
+// Validate checks the field values on RefreshTokenResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RefreshTokenResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on TokenResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in TokenResponseMultiError, or
-// nil if none found.
-func (m *TokenResponse) ValidateAll() error {
+// ValidateAll checks the field values on RefreshTokenResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RefreshTokenResponseMultiError, or nil if none found.
+func (m *RefreshTokenResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *TokenResponse) validate(all bool) error {
+func (m *RefreshTokenResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Token
+	// no validation rules for RefreshToken
 
 	if len(errors) > 0 {
-		return TokenResponseMultiError(errors)
+		return RefreshTokenResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// TokenResponseMultiError is an error wrapping multiple validation errors
-// returned by TokenResponse.ValidateAll() if the designated constraints
-// aren't met.
-type TokenResponseMultiError []error
+// RefreshTokenResponseMultiError is an error wrapping multiple validation
+// errors returned by RefreshTokenResponse.ValidateAll() if the designated
+// constraints aren't met.
+type RefreshTokenResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m TokenResponseMultiError) Error() string {
+func (m RefreshTokenResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1316,11 +1316,11 @@ func (m TokenResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m TokenResponseMultiError) AllErrors() []error { return m }
+func (m RefreshTokenResponseMultiError) AllErrors() []error { return m }
 
-// TokenResponseValidationError is the validation error returned by
-// TokenResponse.Validate if the designated constraints aren't met.
-type TokenResponseValidationError struct {
+// RefreshTokenResponseValidationError is the validation error returned by
+// RefreshTokenResponse.Validate if the designated constraints aren't met.
+type RefreshTokenResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1328,22 +1328,24 @@ type TokenResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e TokenResponseValidationError) Field() string { return e.field }
+func (e RefreshTokenResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e TokenResponseValidationError) Reason() string { return e.reason }
+func (e RefreshTokenResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e TokenResponseValidationError) Cause() error { return e.cause }
+func (e RefreshTokenResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e TokenResponseValidationError) Key() bool { return e.key }
+func (e RefreshTokenResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e TokenResponseValidationError) ErrorName() string { return "TokenResponseValidationError" }
+func (e RefreshTokenResponseValidationError) ErrorName() string {
+	return "RefreshTokenResponseValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e TokenResponseValidationError) Error() string {
+func (e RefreshTokenResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1355,14 +1357,14 @@ func (e TokenResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sTokenResponse.%s: %s%s",
+		"invalid %sRefreshTokenResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = TokenResponseValidationError{}
+var _ error = RefreshTokenResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -1370,4 +1372,108 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = TokenResponseValidationError{}
+} = RefreshTokenResponseValidationError{}
+
+// Validate checks the field values on AccessTokenResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AccessTokenResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AccessTokenResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AccessTokenResponseMultiError, or nil if none found.
+func (m *AccessTokenResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AccessTokenResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AccessToken
+
+	if len(errors) > 0 {
+		return AccessTokenResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AccessTokenResponseMultiError is an error wrapping multiple validation
+// errors returned by AccessTokenResponse.ValidateAll() if the designated
+// constraints aren't met.
+type AccessTokenResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AccessTokenResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AccessTokenResponseMultiError) AllErrors() []error { return m }
+
+// AccessTokenResponseValidationError is the validation error returned by
+// AccessTokenResponse.Validate if the designated constraints aren't met.
+type AccessTokenResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AccessTokenResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AccessTokenResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AccessTokenResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AccessTokenResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AccessTokenResponseValidationError) ErrorName() string {
+	return "AccessTokenResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AccessTokenResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAccessTokenResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AccessTokenResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AccessTokenResponseValidationError{}

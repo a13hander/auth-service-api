@@ -28,9 +28,9 @@ type AuthV1Client interface {
 	// Список пользователей
 	List(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListResponse, error)
 	// Получение refresh токена
-	GetRefreshToken(ctx context.Context, in *GetRefreshTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error)
+	GetRefreshToken(ctx context.Context, in *GetRefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 	// Получение access токена
-	GetAccessToken(ctx context.Context, in *GetAccessTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error)
+	GetAccessToken(ctx context.Context, in *GetAccessTokenRequest, opts ...grpc.CallOption) (*AccessTokenResponse, error)
 }
 
 type authV1Client struct {
@@ -59,8 +59,8 @@ func (c *authV1Client) List(ctx context.Context, in *emptypb.Empty, opts ...grpc
 	return out, nil
 }
 
-func (c *authV1Client) GetRefreshToken(ctx context.Context, in *GetRefreshTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
-	out := new(TokenResponse)
+func (c *authV1Client) GetRefreshToken(ctx context.Context, in *GetRefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
+	out := new(RefreshTokenResponse)
 	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/GetRefreshToken", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -68,8 +68,8 @@ func (c *authV1Client) GetRefreshToken(ctx context.Context, in *GetRefreshTokenR
 	return out, nil
 }
 
-func (c *authV1Client) GetAccessToken(ctx context.Context, in *GetAccessTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
-	out := new(TokenResponse)
+func (c *authV1Client) GetAccessToken(ctx context.Context, in *GetAccessTokenRequest, opts ...grpc.CallOption) (*AccessTokenResponse, error) {
+	out := new(AccessTokenResponse)
 	err := c.cc.Invoke(ctx, "/auth_v1.AuthV1/GetAccessToken", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,9 +86,9 @@ type AuthV1Server interface {
 	// Список пользователей
 	List(context.Context, *emptypb.Empty) (*ListResponse, error)
 	// Получение refresh токена
-	GetRefreshToken(context.Context, *GetRefreshTokenRequest) (*TokenResponse, error)
+	GetRefreshToken(context.Context, *GetRefreshTokenRequest) (*RefreshTokenResponse, error)
 	// Получение access токена
-	GetAccessToken(context.Context, *GetAccessTokenRequest) (*TokenResponse, error)
+	GetAccessToken(context.Context, *GetAccessTokenRequest) (*AccessTokenResponse, error)
 	mustEmbedUnimplementedAuthV1Server()
 }
 
@@ -102,10 +102,10 @@ func (UnimplementedAuthV1Server) Create(context.Context, *CreateRequest) (*Creat
 func (UnimplementedAuthV1Server) List(context.Context, *emptypb.Empty) (*ListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedAuthV1Server) GetRefreshToken(context.Context, *GetRefreshTokenRequest) (*TokenResponse, error) {
+func (UnimplementedAuthV1Server) GetRefreshToken(context.Context, *GetRefreshTokenRequest) (*RefreshTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRefreshToken not implemented")
 }
-func (UnimplementedAuthV1Server) GetAccessToken(context.Context, *GetAccessTokenRequest) (*TokenResponse, error) {
+func (UnimplementedAuthV1Server) GetAccessToken(context.Context, *GetAccessTokenRequest) (*AccessTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccessToken not implemented")
 }
 func (UnimplementedAuthV1Server) mustEmbedUnimplementedAuthV1Server() {}

@@ -49,6 +49,9 @@ func (c *checkEndpoint) Check(ctx context.Context, url string) bool {
 
 	accessToken := strings.TrimPrefix(authHeader[0], authPrefix)
 	token, err := util.VerifyToken(accessToken, c.accessSecretKey)
+	if err != nil {
+		return false
+	}
 
 	access, err := c.accessRepo.Get(ctx, url)
 	if err != nil {
