@@ -21,6 +21,8 @@ import (
 	descAccess "github.com/a13hander/auth-service-api/pkg/access_v1"
 	descAuth "github.com/a13hander/auth-service-api/pkg/auth_v1"
 	_ "github.com/a13hander/auth-service-api/statik"
+
+	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 )
 
 type App struct {
@@ -120,7 +122,12 @@ func (a *App) initGrpcV1Server(ctx context.Context) error {
 
 	a.grpcV1Server = grpc.NewServer(
 		grpc.Creds(transportCreds),
-		grpc.UnaryInterceptor(interceptors.ValidateInterceptor),
+		grpc.UnaryInterceptor(
+			grpcMiddleware.ChainUnaryServer(
+				interceptors.ErrorCodesInterceptor,
+				interceptors.ValidateInterceptor,
+			),
+		),
 	)
 	reflection.Register(a.grpcV1Server)
 

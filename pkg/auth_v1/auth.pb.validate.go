@@ -725,27 +725,9 @@ func (m *CreateRequest) validate(all bool) error {
 		}
 	}
 
-	if l := utf8.RuneCountInString(m.GetPassword()); l < 8 || l > 32 {
-		err := CreateRequestValidationError{
-			field:  "Password",
-			reason: "value length must be between 8 and 32 runes, inclusive",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Password
 
-	if l := utf8.RuneCountInString(m.GetPasswordConfirm()); l < 8 || l > 32 {
-		err := CreateRequestValidationError{
-			field:  "PasswordConfirm",
-			reason: "value length must be between 8 and 32 runes, inclusive",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for PasswordConfirm
 
 	if len(errors) > 0 {
 		return CreateRequestMultiError(errors)

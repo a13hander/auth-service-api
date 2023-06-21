@@ -7,7 +7,7 @@ import (
 )
 
 type UserValidator interface {
-	ValidateCreating(r *CreateUserRequest) error
+	ValidateCreating(ctx context.Context, r *CreateUserRequest) error
 }
 
 type UserRepo interface {

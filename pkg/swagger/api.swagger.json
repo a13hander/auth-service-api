@@ -104,10 +104,12 @@
           "$ref": "#/definitions/auth_v1UserInfo"
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "title": "[(validate.rules).string.min_len = 8, (validate.rules).string.max_len = 32];"
         },
         "passwordConfirm": {
-          "type": "string"
+          "type": "string",
+          "title": "[(validate.rules).string.min_len = 8, (validate.rules).string.max_len = 32];"
         }
       }
     },
