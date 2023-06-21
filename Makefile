@@ -37,9 +37,13 @@ migrate-status:
 lint:
 	bin/golangci-lint run ./...
 
+run:
+	go run cmd/server/main.go
+
 generate:
 	mkdir -p pkg/swagger
 	make generate-auth-api
+	make generate-access-api
 	statik -src=pkg/swagger
 
 generate-auth-api:
@@ -50,11 +54,19 @@ generate-auth-api:
 	--plugin=protoc-gen-go=bin/protoc-gen-go \
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	--plugin=protoc-gen-validate=bin/protoc-gen-validate --validate_out=lang=go:pkg/auth_v1 --validate_opt=paths=source_relative \
-	--grpc-gateway_out=pkg/auth_v1 --grpc-gateway_opt=paths=source_relative \
-    --plugin=protoc-gen-go-grpc-gateway=bin/protoc-gen-go-grpc-gateway \
-    --plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2 \
-    --openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
-	api/auth_v1/service.proto
+	--grpc-gateway_out=pkg/auth_v1 --grpc-gateway_opt=paths=source_relative --plugin=protoc-gen-grpc-gateway=bin/protoc-gen-grpc-gateway \
+  --plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2 \
+  --openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
+	api/auth_v1/auth.proto
+
+generate-access-api:
+	mkdir -p pkg/access_v1
+	protoc --proto_path api/access_v1 \
+	--proto_path vendor.protogen \
+	--go_out=pkg/access_v1 --go_opt=paths=source_relative --go-grpc_out=pkg/access_v1 --go-grpc_opt=paths=source_relative \
+	--plugin=protoc-gen-go=bin/protoc-gen-go \
+	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
+	api/access_v1/access.proto
 
 vendor-proto:
 	@if [ ! -d vendor.protogen/validate ]; then \

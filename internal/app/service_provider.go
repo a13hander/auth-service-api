@@ -3,9 +3,9 @@ package app
 import (
 	"context"
 
-	grpcV1 "github.com/a13hander/auth-service-api/internal/app/grpc_v1"
+	accessV1 "github.com/a13hander/auth-service-api/internal/app/access_v1"
+	authV1 "github.com/a13hander/auth-service-api/internal/app/auth_v1"
 	"github.com/a13hander/auth-service-api/internal/config"
-
 	"github.com/a13hander/auth-service-api/internal/domain/usecase"
 	"github.com/a13hander/auth-service-api/internal/domain/util"
 	"github.com/a13hander/auth-service-api/internal/domain/validator"
@@ -14,12 +14,14 @@ import (
 )
 
 type serviceProvider struct {
-	logger           util.Logger
-	dbClient         database.Client
-	grpcV1ServerImpl *grpcV1.Implementation
+	logger             util.Logger
+	dbClient           database.Client
+	authV1ServerImpl   *authV1.Implementation
+	accessV1ServerImpl *accessV1.Implementation
 
 	repo struct {
-		userRepo usecase.UserRepo
+		userRepo   usecase.UserRepo
+		accessRepo usecase.AccessRepo
 	}
 
 	validator struct {
@@ -29,6 +31,11 @@ type serviceProvider struct {
 	useCase struct {
 		createUserUseCase usecase.CreateUserUseCase
 		userListUseCase   usecase.ListUserUseCase
+
+		refreshTokenGenerator usecase.RefreshTokenGenerator
+		accessTokenGenerator  usecase.AccessTokenGenerator
+
+		checkEndpoint usecase.CheckEndpoint
 	}
 }
 
@@ -94,14 +101,59 @@ func (c *serviceProvider) GetListUserUseCase(ctx context.Context) usecase.ListUs
 	return c.useCase.userListUseCase
 }
 
-func (c *serviceProvider) GetGrpcV1ServerImpl(ctx context.Context) *grpcV1.Implementation {
-	if c.grpcV1ServerImpl == nil {
-		c.grpcV1ServerImpl = grpcV1.NewImplementation(
+func (c *serviceProvider) GetAccessRepo(ctx context.Context) usecase.AccessRepo {
+	if c.repo.accessRepo == nil {
+		c.repo.accessRepo = database.NewAccessRepo(c.GetDbClient(ctx))
+	}
+
+	return c.repo.accessRepo
+}
+
+func (c *serviceProvider) GetRefreshTokenGenerator(ctx context.Context) usecase.RefreshTokenGenerator {
+	if c.useCase.refreshTokenGenerator == nil {
+		conf := config.GetConfig()
+		c.useCase.refreshTokenGenerator = usecase.NewRefreshTokenGenerator(c.GetUserRepo(ctx), conf.RefreshTokenSecretKey, conf.RefreshTokenExpirationMinutes)
+	}
+
+	return c.useCase.refreshTokenGenerator
+}
+
+func (c *serviceProvider) GetAccessTokenGenerator(ctx context.Context) usecase.AccessTokenGenerator {
+	if c.useCase.accessTokenGenerator == nil {
+		conf := config.GetConfig()
+		c.useCase.accessTokenGenerator = usecase.NewAccessTokenGenerator(c.GetUserRepo(ctx), conf.RefreshTokenSecretKey, conf.AccessTokenSecretKey, conf.AccessTokenExpirationMinutes)
+	}
+
+	return c.useCase.accessTokenGenerator
+}
+
+func (c *serviceProvider) GetAuthV1ServerImpl(ctx context.Context) *authV1.Implementation {
+	if c.authV1ServerImpl == nil {
+		c.authV1ServerImpl = authV1.NewImplementation(
 			c.GetCreateUserUseCase(ctx),
 			c.GetListUserUseCase(ctx),
+			c.GetRefreshTokenGenerator(ctx),
+			c.GetAccessTokenGenerator(ctx),
 			c.GetLogger(ctx),
 		)
 	}
 
-	return c.grpcV1ServerImpl
+	return c.authV1ServerImpl
+}
+
+func (c *serviceProvider) GetCheckEndpoint(ctx context.Context) usecase.CheckEndpoint {
+	if c.useCase.checkEndpoint == nil {
+		conf := config.GetConfig()
+		c.useCase.checkEndpoint = usecase.NewCheckEndpoint(conf.AccessTokenSecretKey, c.GetAccessRepo(ctx))
+	}
+
+	return c.useCase.checkEndpoint
+}
+
+func (c *serviceProvider) GetAccessV1ServerImpl(ctx context.Context) *accessV1.Implementation {
+	if c.accessV1ServerImpl == nil {
+		c.accessV1ServerImpl = accessV1.NewImplementation(c.GetCheckEndpoint(ctx), c.GetLogger(ctx))
+	}
+
+	return c.accessV1ServerImpl
 }

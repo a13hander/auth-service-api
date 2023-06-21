@@ -1,8 +1,10 @@
 package config
 
 import (
+	"encoding/base64"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
@@ -12,6 +14,12 @@ type Config struct {
 	GrpcPort    string `env:"GRPC_PORT" env-required:"true"`
 	HttpPort    string `env:"HTTP_PORT" env-required:"true"`
 	SwaggerPort string `env:"SWAGGER_PORT" env-required:"true"`
+
+	RefreshTokenSecretKey []byte `env:"REFRESH_TOKEN_SECRET_KEY" env-required:"true"`
+	AccessTokenSecretKey  []byte `env:"ACCESS_TOKEN_SECRET_KEY" env-required:"true"`
+
+	RefreshTokenExpirationMinutes time.Duration `env:"REFRESH_TOKEN_EXPIRATION_MINUTES" env-required:"true"`
+	AccessTokenExpirationMinutes  time.Duration `env:"ACCESS_TOKEN_EXPIRATION_MINUTES" env-required:"true"`
 
 	Db struct {
 		Host     string `env:"POSTGRES_HOST" env-required:"true"`
@@ -35,6 +43,16 @@ func GetConfig() *Config {
 		config = &Config{}
 
 		err = cleanenv.ReadEnv(config)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		config.RefreshTokenSecretKey, err = base64.StdEncoding.DecodeString(string(config.RefreshTokenSecretKey))
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		config.AccessTokenSecretKey, err = base64.StdEncoding.DecodeString(string(config.AccessTokenSecretKey))
 		if err != nil {
 			log.Fatalln(err)
 		}

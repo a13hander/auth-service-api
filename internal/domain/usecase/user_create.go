@@ -50,7 +50,14 @@ func (c *createUserUseCase) Run(ctx context.Context, req *CreateUserRequest) (in
 	}
 
 	u := model.User{}
-	fillAttrs(&u, req)
+	err = fillAttrs(&u, req)
+	if err != nil {
+		c.l.ErrorWithCtx("не удалось создать пользователя", map[string]any{
+			"err":     err.Error(),
+			"payload": req.String(),
+		})
+		return 0, errs.InternalErr
+	}
 
 	err = c.repo.Create(ctx, &u)
 	if err != nil {
@@ -64,11 +71,16 @@ func (c *createUserUseCase) Run(ctx context.Context, req *CreateUserRequest) (in
 	return u.Id, nil
 }
 
-func fillAttrs(u *model.User, req *CreateUserRequest) {
+func fillAttrs(u *model.User, req *CreateUserRequest) error {
 	u.Email = req.Email
 	u.Username = req.Username
-	u.Password = req.Password
 	u.Role = req.Role
+
+	pass, err := util.HashPassword(req.Password)
+	if err != nil {
+		return err
+	}
+	u.Password = pass
 
 	if req.Engineer != nil {
 		data, _ := json.Marshal(req.Engineer)
@@ -79,4 +91,6 @@ func fillAttrs(u *model.User, req *CreateUserRequest) {
 		data, _ := json.Marshal(req.Manager)
 		u.Specialisation = data
 	}
+
+	return nil
 }
