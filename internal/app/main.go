@@ -12,6 +12,7 @@ import (
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
@@ -112,7 +113,15 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initGrpcV1Server(ctx context.Context) error {
-	a.grpcV1Server = grpc.NewServer(grpc.UnaryInterceptor(interceptors.ValidateInterceptor))
+	transportCreds, err := credentials.NewServerTLSFromFile("service.pem", "service.key")
+	if err != nil {
+		return err
+	}
+
+	a.grpcV1Server = grpc.NewServer(
+		grpc.Creds(transportCreds),
+		grpc.UnaryInterceptor(interceptors.ValidateInterceptor),
+	)
 	reflection.Register(a.grpcV1Server)
 
 	descAuth.RegisterAuthV1Server(a.grpcV1Server, a.serviceProvider.GetAuthV1ServerImpl(ctx))
