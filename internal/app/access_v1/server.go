@@ -3,15 +3,12 @@ package access_v1
 import (
 	"context"
 
+	"github.com/a13hander/auth-service-api/internal/domain/usecase"
+	"github.com/a13hander/auth-service-api/internal/domain/util"
+	desc "github.com/a13hander/auth-service-api/pkg/access_v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/a13hander/auth-service-api/internal/domain/util"
-
 	"google.golang.org/protobuf/types/known/emptypb"
-
-	"github.com/a13hander/auth-service-api/internal/domain/usecase"
-	desc "github.com/a13hander/auth-service-api/pkg/access_v1"
 )
 
 type Implementation struct {

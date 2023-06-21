@@ -4,10 +4,9 @@ import (
 	"context"
 	"strings"
 
-	"google.golang.org/grpc/metadata"
-
 	"github.com/a13hander/auth-service-api/internal/domain/model"
 	"github.com/a13hander/auth-service-api/internal/domain/util"
+	"google.golang.org/grpc/metadata"
 )
 
 const authPrefix = "Bearer "

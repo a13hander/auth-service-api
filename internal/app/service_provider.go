@@ -5,9 +5,7 @@ import (
 
 	accessV1 "github.com/a13hander/auth-service-api/internal/app/access_v1"
 	authV1 "github.com/a13hander/auth-service-api/internal/app/auth_v1"
-
 	"github.com/a13hander/auth-service-api/internal/config"
-
 	"github.com/a13hander/auth-service-api/internal/domain/usecase"
 	"github.com/a13hander/auth-service-api/internal/domain/util"
 	"github.com/a13hander/auth-service-api/internal/domain/validator"

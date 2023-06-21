@@ -4,7 +4,6 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
-
 	"github.com/a13hander/auth-service-api/internal/domain/model"
 )
 

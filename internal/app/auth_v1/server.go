@@ -4,14 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/a13hander/auth-service-api/internal/domain/errs"
+	"github.com/a13hander/auth-service-api/internal/domain/usecase"
+	"github.com/a13hander/auth-service-api/internal/domain/util"
+	desc "github.com/a13hander/auth-service-api/pkg/auth_v1"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-
-	"github.com/a13hander/auth-service-api/internal/domain/errs"
-	"github.com/a13hander/auth-service-api/internal/domain/util"
-
-	"github.com/a13hander/auth-service-api/internal/domain/usecase"
-	desc "github.com/a13hander/auth-service-api/pkg/auth_v1"
 )
 
 type Implementation struct {

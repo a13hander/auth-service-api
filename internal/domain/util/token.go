@@ -4,9 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
-
 	"github.com/a13hander/auth-service-api/internal/domain/model"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func GenerateToken(user *model.User, secretKey []byte, duration time.Duration) (string, error) {

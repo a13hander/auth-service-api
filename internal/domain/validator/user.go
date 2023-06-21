@@ -2,6 +2,7 @@ package validator
 
 import (
 	"errors"
+
 	"github.com/a13hander/auth-service-api/internal/domain/usecase"
 )
 
