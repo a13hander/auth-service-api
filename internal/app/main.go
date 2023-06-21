@@ -8,6 +8,12 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/a13hander/auth-service-api/internal/app/auth_v1/interceptors"
+	"github.com/a13hander/auth-service-api/internal/config"
+	descAccess "github.com/a13hander/auth-service-api/pkg/access_v1"
+	descAuth "github.com/a13hander/auth-service-api/pkg/auth_v1"
+	_ "github.com/a13hander/auth-service-api/statik"
+	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
@@ -15,14 +21,6 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
-
-	"github.com/a13hander/auth-service-api/internal/app/auth_v1/interceptors"
-	"github.com/a13hander/auth-service-api/internal/config"
-	descAccess "github.com/a13hander/auth-service-api/pkg/access_v1"
-	descAuth "github.com/a13hander/auth-service-api/pkg/auth_v1"
-	_ "github.com/a13hander/auth-service-api/statik"
-
-	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 )
 
 type App struct {
