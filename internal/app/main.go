@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/a13hander/auth-service-api/internal/app/auth_v1/interceptors"
 	"github.com/a13hander/auth-service-api/internal/config"
@@ -19,6 +20,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
+	"github.com/sony/gobreaker"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -134,6 +136,20 @@ func (a *App) initGrpcV1Server(ctx context.Context) error {
 
 	rateLimiterInterceptor := interceptors.NewRateLimiterInterceptor(a.serviceProvider.GetRateLimiter(ctx))
 
+	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name:        "auth-service",
+		MaxRequests: 3,
+		Timeout:     5 * time.Second,
+		ReadyToTrip: func(counts gobreaker.Counts) bool {
+			failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
+			return failureRatio >= 0.6
+		},
+		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
+			log.Printf("Circuit Breaker: %s, changed from %v, to %v\n", name, from, to)
+		},
+	})
+	circuitBreakerInterceptor := interceptors.NewCircuitBreakerInterceptor(cb)
+
 	a.grpcV1Server = grpc.NewServer(
 		grpc.Creds(transportCreds),
 		grpc.UnaryInterceptor(
@@ -142,6 +158,7 @@ func (a *App) initGrpcV1Server(ctx context.Context) error {
 				interceptors.ValidateInterceptor,
 				rateLimiterInterceptor.Unary,
 				interceptors.MetricsInterceptor,
+				circuitBreakerInterceptor.Unary,
 			),
 		),
 	)

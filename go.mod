@@ -14,8 +14,10 @@ require (
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/joho/godotenv v1.5.1
+	github.com/prometheus/client_golang v1.16.0
 	github.com/rakyll/statik v0.1.7
 	github.com/rs/cors v1.9.0
+	github.com/sony/gobreaker v0.5.0
 	golang.org/x/crypto v0.10.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230525234020-1aefcd67740a
 	google.golang.org/grpc v1.56.0
@@ -34,13 +36,12 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgtype v1.14.0 // indirect
 	github.com/jackc/puddle v1.3.0 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
-	github.com/prometheus/client_golang v1.16.0 // indirect
 	github.com/prometheus/client_model v0.4.0 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.11.0 // indirect
@@ -49,7 +50,6 @@ require (
 	golang.org/x/text v0.10.0 // indirect
 	google.golang.org/genproto v0.0.0-20230525234025-438c736192d0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 )
