@@ -33,5 +33,5 @@ func (i *Implementation) Check(ctx context.Context, req *desc.CheckRequest) (*em
 		return &emptypb.Empty{}, nil
 	}
 
-	return &emptypb.Empty{}, status.Error(codes.PermissionDenied, "access denied")
+	return nil, status.Error(codes.PermissionDenied, "access denied")
 }
