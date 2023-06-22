@@ -44,9 +44,9 @@ func NewCreateUserUseCase(validator UserValidator, repo UserRepo, l util.Logger)
 }
 
 func (c *createUserUseCase) Run(ctx context.Context, req *CreateUserRequest) (int, error) {
-	err := c.validator.ValidateCreating(req)
+	err := c.validator.ValidateCreating(ctx, req)
 	if err != nil {
-		return 0, errs.NewInvalidArgumentError(err.Error())
+		return 0, err
 	}
 
 	u := model.User{}

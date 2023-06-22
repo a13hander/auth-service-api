@@ -28,6 +28,9 @@ type Config struct {
 		Password string `env:"POSTGRES_PASSWORD" env-required:"true"`
 		Database string `env:"POSTGRES_DB" env-required:"true"`
 	}
+
+	RateLimit       int           `env:"RATE_LIMIT" env-required:"true"`
+	RateLimitPeriod time.Duration `env:"RATE_LIMIT_PERIOD" env-required:"true"`
 }
 
 var config *Config

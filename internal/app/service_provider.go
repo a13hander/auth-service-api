@@ -11,6 +11,7 @@ import (
 	"github.com/a13hander/auth-service-api/internal/domain/validator"
 	"github.com/a13hander/auth-service-api/internal/service/database"
 	"github.com/a13hander/auth-service-api/internal/service/logger"
+	"github.com/a13hander/auth-service-api/internal/service/ratelimiter"
 )
 
 type serviceProvider struct {
@@ -36,6 +37,10 @@ type serviceProvider struct {
 		accessTokenGenerator  usecase.AccessTokenGenerator
 
 		checkEndpoint usecase.CheckEndpoint
+	}
+
+	services struct {
+		rateLimiter ratelimiter.RateLimiter
 	}
 }
 
@@ -67,6 +72,15 @@ func (c serviceProvider) GetDbClient(ctx context.Context) database.Client {
 	}
 
 	return c.dbClient
+}
+
+func (c serviceProvider) GetRateLimiter(ctx context.Context) ratelimiter.RateLimiter {
+	if c.services.rateLimiter == nil {
+		conf := config.GetConfig()
+		c.services.rateLimiter = ratelimiter.NewLimiter(ctx, conf.RateLimit, conf.RateLimitPeriod)
+	}
+
+	return c.services.rateLimiter
 }
 
 func (c *serviceProvider) GetUserRepo(ctx context.Context) usecase.UserRepo {

@@ -30,3 +30,10 @@ cmd/test
 
 docker-compose.override.yml
 /vendor.protogen/
+
+ca.key
+ca.cert
+ca.srl
+service.csr
+service.key
+service.pem

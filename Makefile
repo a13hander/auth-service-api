@@ -87,3 +87,22 @@ vendor-proto:
 		mv vendor.protogen/openapiv2/protoc-gen-openapiv2/options/*.proto vendor.protogen/protoc-gen-openapiv2/options &&\
 		rm -rf vendor.protogen/openapiv2 ;\
 	fi
+
+cert:
+	openssl genrsa -out ca.key 4096
+	openssl req -new -x509 -key ca.key -sha256 -subj "/C=US/ST=NJ/O=CA, Inc." -days 365 -out ca.cert
+	openssl genrsa -out service.key 4096
+	openssl req -new -key service.key -out service.csr -config certificate.conf
+	openssl x509 -req -in service.csr -CA ca.cert -CAkey ca.key -CAcreateserial \
+		-out service.pem -days 365 -sha256 -extfile certificate.conf -extensions req_ext
+
+grpc-load-test:
+	ghz \
+		--proto api/auth_v1/auth.proto \
+		--import-paths=vendor.protogen \
+		--call auth_v1.AuthV1.List \
+		--data '' \
+		--rps 100 \
+		--total 6000 \
+		--cacert=service.pem \
+		localhost:50051

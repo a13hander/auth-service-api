@@ -7,26 +7,33 @@ import (
 	"net"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/a13hander/auth-service-api/internal/app/auth_v1/interceptors"
 	"github.com/a13hander/auth-service-api/internal/config"
+	"github.com/a13hander/auth-service-api/internal/service/metric"
 	descAccess "github.com/a13hander/auth-service-api/pkg/access_v1"
 	descAuth "github.com/a13hander/auth-service-api/pkg/auth_v1"
 	_ "github.com/a13hander/auth-service-api/statik"
+	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
+	"github.com/sony/gobreaker"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
 
 type App struct {
-	serviceProvider *serviceProvider
-	config          *config.Config
-	grpcV1Server    *grpc.Server
-	httpServer      *http.Server
-	swaggerServer   *http.Server
+	serviceProvider  *serviceProvider
+	config           *config.Config
+	grpcV1Server     *grpc.Server
+	httpServer       *http.Server
+	swaggerServer    *http.Server
+	prometheusServer *http.Server
 }
 
 func NewApp(ctx context.Context) (*App, error) {
@@ -47,7 +54,7 @@ func (a *App) Run(ctx context.Context) error {
 	}()
 
 	wg := &sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -76,6 +83,15 @@ func (a *App) Run(ctx context.Context) error {
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+
+		err := a.runPrometheusServer()
+		if err != nil {
+			log.Fatalf("failed to run Prometheus server: %v", err)
+		}
+	}()
+
 	wg.Wait()
 
 	return nil
@@ -84,10 +100,12 @@ func (a *App) Run(ctx context.Context) error {
 func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
 		a.initConfig,
+		metric.Init,
 		a.initServiceProvider,
 		a.initGrpcV1Server,
 		a.initHttpServer,
 		a.initSwaggerServer,
+		a.initPrometheusServer,
 	}
 
 	for _, f := range inits {
@@ -111,7 +129,39 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initGrpcV1Server(ctx context.Context) error {
-	a.grpcV1Server = grpc.NewServer(grpc.UnaryInterceptor(interceptors.ValidateInterceptor))
+	transportCreds, err := credentials.NewServerTLSFromFile("service.pem", "service.key")
+	if err != nil {
+		return err
+	}
+
+	rateLimiterInterceptor := interceptors.NewRateLimiterInterceptor(a.serviceProvider.GetRateLimiter(ctx))
+
+	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name:        "auth-service",
+		MaxRequests: 3,
+		Timeout:     5 * time.Second,
+		ReadyToTrip: func(counts gobreaker.Counts) bool {
+			failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
+			return failureRatio >= 0.6
+		},
+		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
+			log.Printf("Circuit Breaker: %s, changed from %v, to %v\n", name, from, to)
+		},
+	})
+	circuitBreakerInterceptor := interceptors.NewCircuitBreakerInterceptor(cb)
+
+	a.grpcV1Server = grpc.NewServer(
+		grpc.Creds(transportCreds),
+		grpc.UnaryInterceptor(
+			grpcMiddleware.ChainUnaryServer(
+				interceptors.ErrorCodesInterceptor,
+				interceptors.ValidateInterceptor,
+				rateLimiterInterceptor.Unary,
+				interceptors.MetricsInterceptor,
+				circuitBreakerInterceptor.Unary,
+			),
+		),
+	)
 	reflection.Register(a.grpcV1Server)
 
 	descAuth.RegisterAuthV1Server(a.grpcV1Server, a.serviceProvider.GetAuthV1ServerImpl(ctx))
@@ -231,4 +281,25 @@ func serveSwaggerFile(path string) http.HandlerFunc {
 			return
 		}
 	}
+}
+
+func (a *App) initPrometheusServer(_ context.Context) error {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+
+	a.prometheusServer = &http.Server{
+		Addr:    "localhost:2112",
+		Handler: mux,
+	}
+
+	return nil
+}
+
+func (a *App) runPrometheusServer() error {
+	err := a.prometheusServer.ListenAndServe()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
