@@ -3,17 +3,17 @@ package interceptors
 import (
 	"context"
 
-	"github.com/a13hander/auth-service-api/internal/service/ratelimit"
+	"github.com/a13hander/auth-service-api/internal/service/ratelimiter"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type RateLimiterInterceptor struct {
-	rateLimiter ratelimit.RateLimiter
+	rateLimiter ratelimiter.RateLimiter
 }
 
-func NewRateLimiterInterceptor(rateLimiter ratelimit.RateLimiter) *RateLimiterInterceptor {
+func NewRateLimiterInterceptor(rateLimiter ratelimiter.RateLimiter) *RateLimiterInterceptor {
 	return &RateLimiterInterceptor{rateLimiter: rateLimiter}
 }
 
