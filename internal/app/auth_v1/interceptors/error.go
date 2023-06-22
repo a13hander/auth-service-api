@@ -22,7 +22,7 @@ func ErrorCodesInterceptor(ctx context.Context, req interface{}, info *grpc.Unar
 		return res, nil
 	}
 
-	fmt.Printf(color.RedString("error: %s\n", err.Error()))
+	fmt.Println(color.RedString("error: %s", err.Error()))
 
 	if de, ok := errs.AsDomainError(err); ok {
 		err = handleDomainError(de)
